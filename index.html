@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイ・ダッシュボード</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f6f8; margin: 20px; }
+    .grid-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; border-bottom: 2px solid #0056b3; padding-bottom: 5px; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    a { color: #333; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <h1>My Daily Dashboard</h1>
+
+  <div class="grid-container">
+    <!-- ニュースエリア -->
+    <div class="card">
+      <h2>Yahoo!ニュース（主要）</h2>
+      <ul id="news-list">読み込み中...</ul>
+    </div>
+
+    <!-- 右側サイドバー（天気＆交通） -->
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>天気情報</h2>
+        <div id="weather">地域を選択して設定</div>
+      </div>
+
+      <div class="card">
+        <h2>交通・運行情報</h2>
+        <ul id="traffic-list">
+          <li><strong>〇〇線:</strong> 常時平常運転</li>
+          <li><strong>△△線:</strong> 一部遅延あり</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Yahoo!ニュース RSS (主要) をCORSプロキシ経由で取得する例
+    const rssUrl = 'https://news.yahoo.co.jp/rss/topics/top-picks.xml';
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('news-list');
+        list.innerHTML = '';
+        data.items.slice(0, 8).forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+          list.appendChild(li);
+        });
+      })
+      .catch(err => {
+        document.getElementById('news-list').textContent = 'ニュースの取得に失敗しました。';
+      });
+  </script>
+</body>
+</html>
