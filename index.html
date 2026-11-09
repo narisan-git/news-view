@@ -1,67 +1,985 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>マイ・ダッシュボード</title>
-  <style>
-    body { font-family: sans-serif; background: #f4f6f8; margin: 20px; }
-    .grid-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; border-bottom: 2px solid #0056b3; padding-bottom: 5px; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-    a { color: #333; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-LINK // TACTICAL DASHBOARD v4.09</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Orbitron & Rajdhani -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-blue: #0066ff;
+            --neon-alert: #ff0055;
+            --neon-warning: #ffb700;
+            --neon-success: #00ff66;
+            --bg-dark: #030712;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-dark);
+            color: #d1d5db;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Scanline Overlay */
+        .scanline-overlay {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 243, 255, 0.03) 50%,
+                rgba(0, 243, 255, 0.03)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* Cyberpunk Glassmorphism Panel */
+        .cyber-panel {
+            background: rgba(6, 18, 38, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.08), inset 0 0 15px rgba(0, 243, 255, 0.05);
+            position: relative;
+            clip-path: polygon(
+                0 0, 
+                calc(100% - 12px) 0, 
+                100% 12px, 
+                100% 100%, 
+                12px 100%, 
+                0 calc(100% - 12px)
+            );
+        }
+
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid var(--neon-cyan);
+            border-left: 2px solid var(--neon-cyan);
+        }
+
+        .cyber-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            border-bottom: 2px solid var(--neon-cyan);
+            border-right: 2px solid var(--neon-cyan);
+        }
+
+        /* Neon Glow Effects */
+        .glow-cyan {
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.7), 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+        .glow-blue {
+            text-shadow: 0 0 8px rgba(0, 102, 255, 0.7), 0 0 20px rgba(0, 102, 255, 0.4);
+        }
+        .box-glow-cyan {
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+        }
+
+        /* Futuristic Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(3, 7, 18, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.4);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Cyber Button Base Styling */
+        .cyber-btn {
+            position: relative;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            overflow: hidden;
+        }
+        .cyber-btn:hover {
+            background: rgba(0, 243, 255, 0.25);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            color: #fff;
+        }
+        .cyber-btn:active {
+            transform: scale(0.97);
+        }
+
+        .cyber-btn-active {
+            background: rgba(0, 243, 255, 0.35) !important;
+            border-color: var(--neon-cyan) !important;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.6) !important;
+            color: #fff !important;
+        }
+
+        /* Animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+
+        @keyframes radar-sweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-radar {
+            animation: radar-sweep 4s linear infinite;
+        }
+
+        /* Grid Background Pattern */
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Custom Radar SVG Styles */
+        .radar-grid {
+            stroke: rgba(0, 243, 255, 0.2);
+            stroke-dasharray: 2 2;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen relative grid-bg flex flex-col justify-between">
 
-  <h1>My Daily Dashboard</h1>
+    <!-- Interactive Background Canvas -->
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-  <div class="grid-container">
-    <!-- ニュースエリア -->
-    <div class="card">
-      <h2>Yahoo!ニュース（主要）</h2>
-      <ul id="news-list">読み込み中...</ul>
+    <!-- Scanline Effect Overlay -->
+    <div class="scanline-overlay fixed inset-0 pointer-events-none z-50"></div>
+
+    <!-- Main Application Wrapper -->
+    <div class="relative z-10 flex flex-col min-h-screen p-3 md:p-6 space-y-4 max-w-[1920px] mx-auto w-full">
+        
+        <!-- HEADER SECTION -->
+        <header class="cyber-panel p-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+            <!-- Brand & Identifier -->
+            <div class="flex items-center space-x-4 w-full lg:w-auto justify-between lg:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex items-center justify-center w-10 h-10 border border-[var(--neon-cyan)] rounded-full glow-cyan">
+                        <i class="fa-solid fa-atom text-xl text-[var(--neon-cyan)] animate-spin" style="animation-duration: 8s;"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-orbitron text-xl md:text-2xl font-black tracking-wider text-white glow-cyan">
+                            NEO<span class="text-[var(--neon-cyan)]">OS</span> // CYBER-HUB
+                        </h1>
+                        <p class="text-xs font-mono text-cyan-400 opacity-80 tracking-widest">TACTICAL INFORMATION FEED v4.09</p>
+                    </div>
+                </div>
+
+                <!-- Quick Action Toggles (Mobile View Support) -->
+                <div class="flex items-center space-x-2">
+                    <button id="audio-toggle" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="Toggle Cyber Audio SFX">
+                        <i class="fa-solid fa-volume-high text-xs" id="audio-icon"></i>
+                        <span class="hidden sm:inline font-mono text-[10px]">SFX: ON</span>
+                    </button>
+                    <button id="refresh-all-btn" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="Force Refresh Feeds">
+                        <i class="fa-solid fa-rotate text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Central System Diagnostics Display -->
+            <div class="grid grid-cols-3 gap-3 md:gap-6 w-full lg:w-auto text-center font-mono text-xs">
+                <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                    <div class="text-cyan-400 opacity-70">CPU LOAD</div>
+                    <div id="cpu-load" class="font-orbitron text-sm md:text-base font-bold text-white glow-cyan">14.2%</div>
+                    <div class="w-full bg-blue-950 h-1 mt-1 overflow-hidden">
+                        <div id="cpu-bar" class="bg-[var(--neon-cyan)] h-full transition-all duration-500" style="width: 14.2%"></div>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                    <div class="text-cyan-400 opacity-70">LATENCY</div>
+                    <div id="latency-val" class="font-orbitron text-sm md:text-base font-bold text-white glow-cyan">12 ms</div>
+                    <div class="w-full bg-blue-950 h-1 mt-1 overflow-hidden">
+                        <div id="latency-bar" class="bg-emerald-400 h-full transition-all duration-500" style="width: 18%"></div>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                    <div class="text-cyan-400 opacity-70">MEMORY</div>
+                    <div id="mem-val" class="font-orbitron text-sm md:text-base font-bold text-white glow-cyan">4.1 / 16 GB</div>
+                    <div class="w-full bg-blue-950 h-1 mt-1 overflow-hidden">
+                        <div id="mem-bar" class="bg-[var(--neon-blue)] h-full transition-all duration-500" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Time Clock Display -->
+            <div class="text-center lg:text-right w-full lg:w-auto font-orbitron">
+                <div id="digital-clock" class="text-2xl md:text-3xl font-bold tracking-widest text-white glow-cyan">
+                    00:00:00 <span class="text-xs font-normal text-cyan-400">JST</span>
+                </div>
+                <div id="digital-date" class="text-xs text-cyan-300 font-mono tracking-wider opacity-90">
+                    2026.11.09 // MON
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD CONTENT GRID -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow">
+
+            <!-- LEFT COLUMN: NEWS FEED & TERMINAL LOGS (7 COLS) -->
+            <section class="lg:col-span-7 flex flex-col space-y-4">
+                
+                <!-- YAHOO! NEWS FEED MODULE -->
+                <div class="cyber-panel p-4 flex flex-col flex-grow min-h-[500px]">
+                    <!-- Module Title & Tabs -->
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-cyan-500/30 pb-3 gap-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-newspaper text-[var(--neon-cyan)] text-lg"></i>
+                            <h2 class="font-orbitron font-bold text-lg text-white tracking-wider glow-cyan">
+                                YAHOO! NEWS FEED <span class="text-xs text-cyan-400 font-mono font-normal">// LIVE RSS</span>
+                            </h2>
+                        </div>
+
+                        <!-- Category Selector Tabs -->
+                        <div class="flex flex-wrap gap-1 font-orbitron text-xs w-full md:w-auto">
+                            <button class="cyber-btn cyber-btn-active px-3 py-1 text-[11px] rounded news-tab" data-cat="top">主要</button>
+                            <button class="cyber-btn px-3 py-1 text-[11px] rounded news-tab" data-cat="it">IT・科学</button>
+                            <button class="cyber-btn px-3 py-1 text-[11px] rounded news-tab" data-cat="bus">経済</button>
+                            <button class="cyber-btn px-3 py-1 text-[11px] rounded news-tab" data-cat="world">国際</button>
+                            <button class="cyber-btn px-3 py-1 text-[11px] rounded news-tab" data-cat="dom">国内</button>
+                        </div>
+                    </div>
+
+                    <!-- News Items List Container -->
+                    <div class="relative flex-grow mt-3 overflow-hidden">
+                        <!-- Loading / Status Spinner Overlay -->
+                        <div id="news-loading" class="absolute inset-0 bg-slate-950/80 backdrop-blur flex flex-col items-center justify-center space-y-3 z-20">
+                            <div class="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span class="font-mono text-xs text-cyan-400 tracking-widest">FETCHING RSS FEED ENCRYPTED STREAM...</span>
+                        </div>
+
+                        <!-- Scrollable Feed -->
+                        <ul id="news-feed-list" class="space-y-2 h-full overflow-y-auto pr-2 max-h-[460px]">
+                            <!-- News items will be populated via JavaScript -->
+                        </ul>
+                    </div>
+
+                    <!-- Feed Footer Info -->
+                    <div class="mt-3 pt-2 border-t border-cyan-500/20 flex items-center justify-between font-mono text-[11px] text-cyan-400/80">
+                        <span id="news-last-updated"><i class="fa-solid fa-sync text-[10px] mr-1"></i>AUTO-SYNC: ACTIVE</span>
+                        <span class="text-slate-400">SOURCE: YAHOO! JAPAN RSS VIA SECURE GATEWAY</span>
+                    </div>
+                </div>
+
+                <!-- DIAGNOSTIC SYSTEM LOG TERMINAL -->
+                <div class="cyber-panel p-3 font-mono text-xs flex flex-col space-y-2">
+                    <div class="flex items-center justify-between border-b border-cyan-500/20 pb-1">
+                        <span class="text-cyan-400 font-orbitron text-[11px]"><i class="fa-solid fa-terminal mr-2"></i>TACTICAL SYSTEM LOG</span>
+                        <span class="text-emerald-400 text-[10px]">● SYSTEM ONLINE</span>
+                    </div>
+                    <div id="terminal-log" class="h-24 overflow-y-auto space-y-1 text-slate-300 pr-1 text-[11px]">
+                        <div><span class="text-cyan-400">[00:00:01]</span> Core neural engine initialized successfully.</div>
+                        <div><span class="text-cyan-400">[00:00:02]</span> Weather satellite lock established on sector: TOKYO METROPOLIS.</div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN: WEATHER & TRANSIT STATUS (5 COLS) -->
+            <section class="lg:col-span-5 flex flex-col space-y-4">
+                
+                <!-- WEATHER & RADAR MODULE -->
+                <div class="cyber-panel p-4 flex flex-col space-y-3">
+                    <div class="flex items-center justify-between border-b border-cyan-500/30 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-satellite-dish text-[var(--neon-cyan)]"></i>
+                            <h2 class="font-orbitron font-bold text-base text-white tracking-wider glow-cyan">
+                                WEATHER RADAR <span class="text-xs text-cyan-400 font-mono font-normal">// SECTOR-03</span>
+                            </h2>
+                        </div>
+                        <!-- City Selector Dropdown -->
+                        <select id="city-selector" class="bg-slate-900 border border-cyan-500/40 text-cyan-300 font-mono text-xs rounded px-2 py-1 outline-none focus:border-[var(--neon-cyan)]">
+                            <option value="tokyo">TOKYO (東京)</option>
+                            <option value="osaka">OSAKA (大阪)</option>
+                            <option value="nagoya">NAGOYA (名古屋)</option>
+                            <option value="sapporo">SAPPORO (札幌)</option>
+                            <option value="fukuoka">FUKUOKA (福岡)</option>
+                        </select>
+                    </div>
+
+                    <!-- Radar & Weather Display Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <!-- Futuristic Simulated Radar View Canvas -->
+                        <div class="relative w-full aspect-square max-w-[200px] mx-auto border border-cyan-500/40 rounded-full p-1 bg-slate-950/70 flex items-center justify-center overflow-hidden">
+                            <!-- Radar Scanning Line SVG Overlay -->
+                            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="48" class="radar-grid" fill="none"/>
+                                <circle cx="50" cy="50" r="32" class="radar-grid" fill="none"/>
+                                <circle cx="50" cy="50" r="16" class="radar-grid" fill="none"/>
+                                <line x1="50" y1="0" x2="50" y2="100" class="radar-grid"/>
+                                <line x1="0" y1="50" x2="100" y2="50" class="radar-grid"/>
+                            </svg>
+                            
+                            <!-- Rotating Scanner Blade -->
+                            <div class="absolute inset-0 animate-radar origin-center pointer-events-none" style="background: conic-gradient(from 0deg, rgba(0, 243, 255, 0.4) 0deg, transparent 60deg, transparent 360deg); border-radius: 50%;"></div>
+
+                            <!-- Target Blips -->
+                            <div class="absolute w-2 h-2 bg-emerald-400 rounded-full animate-ping" style="top: 30%; left: 60%;"></div>
+                            <div class="absolute w-1.5 h-1.5 bg-cyan-300 rounded-full" style="top: 65%; left: 40%;"></div>
+                            <div class="absolute w-1.5 h-1.5 bg-cyan-300 rounded-full" style="top: 25%; left: 35%;"></div>
+
+                            <!-- Weather Icon & Condition -->
+                            <div class="relative z-10 text-center flex flex-col items-center">
+                                <i id="weather-icon" class="fa-solid fa-cloud-sun text-4xl text-[var(--neon-cyan)] glow-cyan mb-1"></i>
+                                <span id="weather-condition" class="font-orbitron font-bold text-xs text-white tracking-widest">PARTLY CLOUDY</span>
+                            </div>
+                        </div>
+
+                        <!-- Weather Numerical Stats -->
+                        <div class="flex flex-col space-y-2 font-mono text-xs">
+                            <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                                <div class="text-slate-400 text-[10px]">TEMP / HUMIDITY</div>
+                                <div class="flex items-baseline space-x-2">
+                                    <span id="weather-temp" class="font-orbitron text-2xl font-bold text-white glow-cyan">18.5°C</span>
+                                    <span id="weather-humidity" class="text-cyan-400 text-xs">HUM: 58%</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                                <div class="text-slate-400 text-[10px]">WIND VECTOR</div>
+                                <div class="flex items-center space-x-2">
+                                    <i id="wind-dir-icon" class="fa-solid fa-location-arrow text-[var(--neon-cyan)] transform rotate-45"></i>
+                                    <span id="weather-wind" class="font-orbitron text-sm text-white">ENE 4.2 m/s</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
+                                <div class="text-slate-400 text-[10px]">PRECIPITATION PROB</div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex-grow bg-slate-900 h-2 rounded overflow-hidden">
+                                        <div id="rain-bar" class="bg-[var(--neon-cyan)] h-full" style="width: 20%;"></div>
+                                    </div>
+                                    <span id="rain-prob" class="font-orbitron text-xs text-cyan-300">20%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRANSIT & NAVIGATION NETWORK MODULE -->
+                <div class="cyber-panel p-4 flex flex-col flex-grow space-y-3">
+                    <div class="flex items-center justify-between border-b border-cyan-500/30 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-train-subway text-[var(--neon-cyan)]"></i>
+                            <h2 class="font-orbitron font-bold text-base text-white tracking-wider glow-cyan">
+                                TRANSIT MATRIX <span class="text-xs text-cyan-400 font-mono font-normal">// KANTO LINES</span>
+                            </h2>
+                        </div>
+                        <button id="add-line-btn" class="cyber-btn px-2 py-1 text-[10px] rounded text-cyan-300">
+                            <i class="fa-solid fa-sliders mr-1"></i>CONFIG
+                        </button>
+                    </div>
+
+                    <!-- Transit Lines Status Container -->
+                    <div id="transit-lines-container" class="space-y-2.5 overflow-y-auto max-h-[380px] pr-1">
+                        <!-- Line items will be populated via JavaScript -->
+                    </div>
+
+                    <!-- Transit Status Legend -->
+                    <div class="mt-auto pt-2 border-t border-cyan-500/20 flex items-center justify-around font-mono text-[10px] text-slate-400">
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1"></span> NOMINAL (平常)</span>
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1"></span> DELAY (遅延)</span>
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-rose-500 inline-block mr-1"></span> SUSPENDED (見合わせ)</span>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- FOOTER BAR -->
+        <footer class="cyber-panel p-2 px-4 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-cyan-400/80 gap-2">
+            <div class="flex items-center space-x-3">
+                <span>SECURITY LEVEL: <span class="text-emerald-400 font-bold">MAXIMUM</span></span>
+                <span>|</span>
+                <span>NEURAL PROTOCOL: <span class="text-cyan-300">ACTIVE</span></span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Audio Sound Wave Canvas Visualizer -->
+                <canvas id="audio-wave-canvas" class="w-24 h-4 bg-transparent border-b border-cyan-500/40"></canvas>
+                <span>© 2026 NEO-TOKYO SYSTEMS INC.</span>
+            </div>
+        </footer>
     </div>
 
-    <!-- 右側サイドバー（天気＆交通） -->
-    <div>
-      <div class="card" style="margin-bottom: 20px;">
-        <h2>天気情報</h2>
-        <div id="weather">地域を選択して設定</div>
-      </div>
+    <!-- CONFIGURATION MODAL (TRANSIT LINE TOGGLES) -->
+    <div id="config-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="cyber-panel p-6 max-w-md w-full space-y-4">
+            <div class="flex items-center justify-between border-b border-cyan-500/40 pb-2">
+                <h3 class="font-orbitron font-bold text-lg text-white glow-cyan">MONITORED TRANSIT LINES</h3>
+                <button id="close-modal-btn" class="text-cyan-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs font-mono text-slate-300">Select which railway lines to display on your tactical HUD:</p>
+            
+            <div id="modal-lines-list" class="space-y-2 max-h-60 overflow-y-auto pr-2 font-mono text-sm">
+                <!-- Dynamic Checkboxes -->
+            </div>
 
-      <div class="card">
-        <h2>交通・運行情報</h2>
-        <ul id="traffic-list">
-          <li><strong>〇〇線:</strong> 常時平常運転</li>
-          <li><strong>△△線:</strong> 一部遅延あり</li>
-        </ul>
-      </div>
+            <div class="flex justify-end space-x-2 pt-2 border-t border-cyan-500/30">
+                <button id="save-config-btn" class="cyber-btn px-4 py-1.5 text-xs rounded text-white">SAVE & APPLY</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Yahoo!ニュース RSS (主要) をCORSプロキシ経由で取得する例
-    const rssUrl = 'https://news.yahoo.co.jp/rss/topics/top-picks.xml';
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /**
+         * CYBER DYNAMIC SOUND ENGINE (Web Audio API)
+         */
+        class CyberAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
 
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('news-list');
-        list.innerHTML = '';
-        data.items.slice(0, 8).forEach(item => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
-          list.appendChild(li);
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playBeep(freq = 800, type = 'sine', duration = 0.05, vol = 0.1) {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {
+                    // Audio context fallback
+                }
+            }
+
+            playClick() {
+                this.playBeep(1200, 'sine', 0.03, 0.08);
+            }
+
+            playTabSwitch() {
+                this.playBeep(600, 'triangle', 0.04, 0.1);
+                setTimeout(() => this.playBeep(900, 'triangle', 0.04, 0.08), 30);
+            }
+
+            playAlert() {
+                this.playBeep(300, 'sawtooth', 0.15, 0.15);
+            }
+        }
+
+        const audio = new CyberAudioEngine();
+
+        /**
+         * BACKGROUND PARTICLE CANVAS ANIMATION
+         */
+        const initParticleBackground = () => {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const particleCount = 45;
+
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    size: Math.random() * 2 + 0.5,
+                    alpha: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            const animateParticles = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw connecting lines between close particles
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(0, 243, 255, ${0.15 * (1 - dist / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Render particles
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 243, 255, ${p.alpha})`;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#00f3ff';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+
+                requestAnimationFrame(animateParticles);
+            };
+
+            animateParticles();
+        };
+
+        /**
+         * AUDIO WAVE VISUALIZER CANVAS
+         */
+        const initWaveVisualizer = () => {
+            const canvas = document.getElementById('audio-wave-canvas');
+            const ctx = canvas.getContext('2d');
+            let step = 0;
+
+            const drawWave = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#00f3ff';
+
+                const height = canvas.height;
+                const width = canvas.width;
+
+                for (let x = 0; x < width; x++) {
+                    const y = Math.sin((x + step) * 0.1) * (height / 3) + (height / 2);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+
+                ctx.stroke();
+                step += 2;
+                requestAnimationFrame(drawWave);
+            };
+
+            drawWave();
+        };
+
+        /**
+         * SYSTEM DIAGNOSTICS & LOGGING MODULE
+         */
+        const logTerminal = (message, type = 'info') => {
+            const terminal = document.getElementById('terminal-log');
+            if (!terminal) return;
+
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            
+            let colorClass = 'text-cyan-400';
+            if (type === 'warn') colorClass = 'text-amber-400';
+            if (type === 'error') colorClass = 'text-rose-400';
+            if (type === 'success') colorClass = 'text-emerald-400';
+
+            div.innerHTML = `<span class="${colorClass}">[${timeStr}]</span> ${message}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        };
+
+        const initDiagnosticsSimulator = () => {
+            setInterval(() => {
+                // Simulate CPU fluctuating load
+                const cpu = (Math.random() * 25 + 10).toFixed(1);
+                document.getElementById('cpu-load').textContent = `${cpu}%`;
+                document.getElementById('cpu-bar').style.width = `${cpu}%`;
+
+                // Latency fluctuation
+                const latency = Math.floor(Math.random() * 8 + 10);
+                document.getElementById('latency-val').textContent = `${latency} ms`;
+
+                // Memory load
+                const mem = (Math.random() * 0.4 + 4.0).toFixed(1);
+                document.getElementById('mem-val').textContent = `${mem} / 16 GB`;
+            }, 3000);
+        };
+
+        /**
+         * CLOCK & CALENDAR ENGINE
+         */
+        const initClock = () => {
+            const updateClock = () => {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                
+                document.getElementById('digital-clock').innerHTML = 
+                    `${hours}:${minutes}:${seconds} <span class="text-xs font-normal text-cyan-400">JST</span>`;
+
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const date = String(now.getDate()).padStart(2, '0');
+                const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                const dayStr = days[now.getDay()];
+
+                document.getElementById('digital-date').textContent = `${year}.${month}.${date} // ${dayStr}`;
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+
+        /**
+         * YAHOO! NEWS RSS INTEGRATION & FALLBACK DATA
+         */
+        const RSS_FEEDS = {
+            top: 'https://news.yahoo.co.jp/rss/topics/top-picks.xml',
+            it: 'https://news.yahoo.co.jp/rss/topics/it.xml',
+            bus: 'https://news.yahoo.co.jp/rss/topics/business.xml',
+            world: 'https://news.yahoo.co.jp/rss/topics/world.xml',
+            dom: 'https://news.yahoo.co.jp/rss/topics/domestic.xml'
+        };
+
+        const FALLBACK_NEWS = {
+            top: [
+                { title: '次世代量子AI通信網、都内全域での実証実験を開始へ', pubDate: '10分前', link: 'https://news.yahoo.co.jp/' },
+                { title: 'サイバーセキュリティ庁、重要インフラ対象の統合防衛システム稼働', pubDate: '25分前', link: 'https://news.yahoo.co.jp/' },
+                { title: '自動運転レベル5対応のスマートハイウェイ計画が可決', pubDate: '45分前', link: 'https://news.yahoo.co.jp/' },
+                { title: '気象庁、高精度AI気象予測システム導入で豪雨予報制度を刷新', pubDate: '1時間前', link: 'https://news.yahoo.co.jp/' },
+                { title: 'グローバル経済フォーラム、デジタル通貨の共通決済規格に合意', pubDate: '2時間前', link: 'https://news.yahoo.co.jp/' }
+            ],
+            it: [
+                { title: '超電導量子チップの冷却システム革新、常温動作に一歩前進', pubDate: '15分前', link: 'https://news.yahoo.co.jp/' },
+                { title: '全固体電池のエネルギー密度が従来比3倍に到達', pubDate: '30分前', link: 'https://news.yahoo.co.jp/' },
+                { title: 'Web3プラットフォームセキュリティ認証が新基準に移行', pubDate: '1時間前', link: 'https://news.yahoo.co.jp/' }
+            ],
+            bus: [
+                { title: '東京株式市場、半導体・宇宙関連銘柄を中心に大幅反発', pubDate: '20分前', link: 'https://news.yahoo.co.jp/' },
+                { title: 'スタートアップ投資、次世代エネルギー分野が過去最高を更新', pubDate: '50分前', link: 'https://news.yahoo.co.jp/' }
+            ],
+            world: [
+                { title: '国際宇宙ステーション、次世代観測モジュールの結合に成功', pubDate: '35分前', link: 'https://news.yahoo.co.jp/' },
+                { title: '欧州連合、AI倫理法案の運用基準を拡大適用', pubDate: '1時間前', link: 'https://news.yahoo.co.jp/' }
+            ],
+            dom: [
+                { title: '首都圏スマートグリッド電力綱、再生可能エネルギー供給率80%達成', pubDate: '40分前', link: 'https://news.yahoo.co.jp/' },
+                { title: '防災ドローンネットワーク、全国の自治体で配備完了', pubDate: '2時間前', link: 'https://news.yahoo.co.jp/' }
+            ]
+        };
+
+        let currentCategory = 'top';
+
+        const fetchNewsFeed = async (category) => {
+            const newsList = document.getElementById('news-feed-list');
+            const loadingOverlay = document.getElementById('news-loading');
+            
+            loadingOverlay.classList.remove('hidden');
+            audio.playClick();
+
+            try {
+                const rssUrl = RSS_FEEDS[category];
+                // Using RSS2JSON CORS API Proxy
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                newsList.innerHTML = '';
+
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    renderNewsItems(data.items.slice(0, 10));
+                    logTerminal(`Fetched ${data.items.length} live articles for [${category.toUpperCase()}] feed.`, 'success');
+                } else {
+                    throw new Error('RSS Feed parse failure');
+                }
+            } catch (error) {
+                logTerminal(`RSS stream offline/blocked. Loading simulated fallback data for [${category.toUpperCase()}].`, 'warn');
+                newsList.innerHTML = '';
+                const fallbackItems = FALLBACK_NEWS[category] || FALLBACK_NEWS.top;
+                renderNewsItems(fallbackItems, true);
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                document.getElementById('news-last-updated').innerHTML = 
+                    `<i class="fa-solid fa-sync text-[10px] mr-1"></i>UPDATED: ${new Date().toLocaleTimeString()}`;
+            }
+        };
+
+        const renderNewsItems = (items, isFallback = false) => {
+            const newsList = document.getElementById('news-feed-list');
+            items.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.className = 'cyber-panel p-2.5 hover:border-[var(--neon-cyan)] transition-all duration-200 group cursor-pointer flex items-start justify-between space-x-3';
+                
+                const dateStr = isFallback ? item.pubDate : new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                li.innerHTML = `
+                    <div class="flex items-start space-x-2.5 overflow-hidden">
+                        <span class="font-orbitron text-xs text-[var(--neon-cyan)] font-bold mt-0.5 group-hover:glow-cyan">0${idx + 1}</span>
+                        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-slate-200 group-hover:text-[var(--neon-cyan)] transition-colors line-clamp-1">
+                            ${item.title}
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0 font-mono text-[11px] text-slate-400">
+                        <span>${dateStr}</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                `;
+
+                li.addEventListener('click', () => audio.playClick());
+                newsList.appendChild(li);
+            });
+        };
+
+        /**
+         * SCI-FI WEATHER MODULE
+         */
+        const CITY_DATA = {
+            tokyo: { name: 'TOKYO METROPOLIS', temp: '18.5°C', cond: 'PARTLY CLOUDY', hum: '58%', wind: 'ENE 4.2 m/s', rain: '20%', icon: 'fa-cloud-sun' },
+            osaka: { name: 'OSAKA BAY SECTOR', temp: '20.1°C', cond: 'CLEAR / OPTIMAL', hum: '52%', wind: 'SE 3.1 m/s', rain: '10%', icon: 'fa-sun' },
+            nagoya: { name: 'NAGOYA REGION', temp: '17.8°C', cond: 'OVERCAST', hum: '65%', wind: 'N 5.0 m/s', rain: '30%', icon: 'fa-cloud' },
+            sapporo: { name: 'SAPPORO NORTH', temp: '8.2°C', cond: 'LIGHT RAIN', hum: '82%', wind: 'NNW 6.8 m/s', rain: '70%', icon: 'fa-cloud-showers-heavy' },
+            fukuoka: { name: 'FUKUOKA WEST', temp: '21.4°C', cond: 'CLEAR / SUNNY', hum: '48%', wind: 'WSW 2.9 m/s', rain: '0%', icon: 'fa-sun' }
+        };
+
+        const updateWeather = (cityKey) => {
+            const data = CITY_DATA[cityKey] || CITY_DATA.tokyo;
+            audio.playClick();
+
+            document.getElementById('weather-condition').textContent = data.cond;
+            document.getElementById('weather-temp').textContent = data.temp;
+            document.getElementById('weather-humidity').textContent = `HUM: ${data.hum}`;
+            document.getElementById('weather-wind').textContent = data.wind;
+            document.getElementById('rain-prob').textContent = data.rain;
+            document.getElementById('rain-bar').style.width = data.rain;
+            
+            const iconEl = document.getElementById('weather-icon');
+            iconEl.className = `fa-solid ${data.icon} text-4xl text-[var(--neon-cyan)] glow-cyan mb-1`;
+
+            logTerminal(`Satellite re-positioned to region: [${data.name}]`, 'info');
+        };
+
+        /**
+         * TRANSIT MATRIX & ROUTE MONITOR MODULE
+         */
+        const INITIAL_TRANSIT_LINES = [
+            { id: 'yamanote', name: 'JR 山手線 (Yamanote)', status: 'normal', delay: '0 min', health: 98 },
+            { id: 'chuo', name: 'JR 中央線 (Chuo Rapid)', status: 'delay', delay: '+12 min', health: 65, alertMsg: 'Signal Maintenance at Shinjuku' },
+            { id: 'keihin', name: 'JR 京浜東北線 (Keihin-Tohoku)', status: 'normal', delay: '0 min', health: 95 },
+            { id: 'ginza', name: '東京メトロ 銀座線 (Ginza)', status: 'normal', delay: '0 min', health: 100 },
+            { id: 'marunouchi', name: '東京メトロ 丸ノ内線 (Marunouchi)', status: 'suspended', delay: 'STOP', health: 10, alertMsg: 'Track Inspection in Progress' },
+            { id: 'tokyu', name: '東急東横線 (Toyoko Line)', status: 'normal', delay: '0 min', health: 92 }
+        ];
+
+        let activeLines = [...INITIAL_TRANSIT_LINES];
+
+        const renderTransitStatus = () => {
+            const container = document.getElementById('transit-lines-container');
+            container.innerHTML = '';
+
+            activeLines.forEach(line => {
+                const item = document.createElement('div');
+                item.className = 'cyber-panel p-2.5 flex flex-col space-y-1.5';
+
+                let badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+                let statusText = 'NORMAL';
+                let pulseColor = 'bg-emerald-400';
+
+                if (line.status === 'delay') {
+                    badgeColor = 'bg-amber-500/20 text-amber-400 border-amber-500/40';
+                    statusText = `DELAY ${line.delay}`;
+                    pulseColor = 'bg-amber-400';
+                } else if (line.status === 'suspended') {
+                    badgeColor = 'bg-rose-500/20 text-rose-400 border-rose-500/40';
+                    statusText = 'SUSPENDED';
+                    pulseColor = 'bg-rose-500';
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between font-mono text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full ${pulseColor} animate-pulse"></span>
+                            <span class="font-bold text-slate-100">${line.name}</span>
+                        </div>
+                        <span class="px-2 py-0.5 border text-[10px] rounded font-orbitron font-bold ${badgeColor}">
+                            ${statusText}
+                        </span>
+                    </div>
+
+                    <!-- Line Signal Health Bar -->
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-grow bg-slate-900 h-1.5 rounded overflow-hidden">
+                            <div class="h-full transition-all duration-500 ${line.status === 'normal' ? 'bg-cyan-400' : line.status === 'delay' ? 'bg-amber-400' : 'bg-rose-500'}" style="width: ${line.health}%;"></div>
+                        </div>
+                        <span class="font-mono text-[10px] text-slate-400">${line.health}% INTEGRITY</span>
+                    </div>
+
+                    ${line.alertMsg ? `<div class="text-[10px] font-mono text-amber-300/90 pl-4"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${line.alertMsg}</div>` : ''}
+                `;
+
+                container.appendChild(item);
+            });
+        };
+
+        /**
+         * INITIALIZATION & EVENT LISTENERS
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Core Modules
+            initParticleBackground();
+            initWaveVisualizer();
+            initClock();
+            initDiagnosticsSimulator();
+
+            // Fetch Default News (Top)
+            fetchNewsFeed('top');
+
+            // Render Default Transit Lines
+            renderTransitStatus();
+
+            // Audio Toggle Switch
+            const audioBtn = document.getElementById('audio-toggle');
+            audioBtn.addEventListener('click', () => {
+                audio.enabled = !audio.enabled;
+                const icon = document.getElementById('audio-icon');
+                if (audio.enabled) {
+                    icon.className = 'fa-solid fa-volume-high text-xs';
+                    audioBtn.querySelector('span').textContent = 'SFX: ON';
+                    audio.playClick();
+                    logTerminal('Audio feedback FX ENABLED.', 'info');
+                } else {
+                    icon.className = 'fa-solid fa-volume-xmark text-xs';
+                    audioBtn.querySelector('span').textContent = 'SFX: OFF';
+                    logTerminal('Audio feedback FX MUTED.', 'info');
+                }
+            });
+
+            // News Feed Tab Switchers
+            document.querySelectorAll('.news-tab').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.news-tab').forEach(b => b.classList.remove('cyber-btn-active'));
+                    e.currentTarget.classList.add('cyber-btn-active');
+                    
+                    const cat = e.currentTarget.getAttribute('data-cat');
+                    currentCategory = cat;
+                    audio.playTabSwitch();
+                    fetchNewsFeed(cat);
+                });
+            });
+
+            // Refresh All Button
+            document.getElementById('refresh-all-btn').addEventListener('click', () => {
+                audio.playClick();
+                fetchNewsFeed(currentCategory);
+                logTerminal('Manual force-refresh initiated across all modules.', 'warn');
+            });
+
+            // City Selector Listener
+            document.getElementById('city-selector').addEventListener('change', (e) => {
+                updateWeather(e.target.value);
+            });
+
+            // Modal Handlers for Transit Configuration
+            const modal = document.getElementById('config-modal');
+            const openModalBtn = document.getElementById('add-line-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const saveModalBtn = document.getElementById('save-config-btn');
+
+            openModalBtn.addEventListener('click', () => {
+                audio.playClick();
+                populateModalList();
+                modal.classList.remove('hidden');
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                audio.playClick();
+                modal.classList.add('hidden');
+            });
+
+            const populateModalList = () => {
+                const modalList = document.getElementById('modal-lines-list');
+                modalList.innerHTML = '';
+
+                INITIAL_TRANSIT_LINES.forEach(line => {
+                    const isChecked = activeLines.some(l => l.id === line.id);
+                    const item = document.createElement('label');
+                    item.className = 'flex items-center space-x-3 p-2 bg-slate-900/60 rounded border border-cyan-500/20 cursor-pointer hover:border-cyan-400';
+                    item.innerHTML = `
+                        <input type="checkbox" value="${line.id}" ${isChecked ? 'checked' : ''} class="accent-[var(--neon-cyan)] w-4 h-4">
+                        <span class="text-slate-200">${line.name}</span>
+                    `;
+                    modalList.appendChild(item);
+                });
+            };
+
+            saveModalBtn.addEventListener('click', () => {
+                audio.playClick();
+                const checkedIds = Array.from(document.querySelectorAll('#modal-lines-list input:checked'))
+                                       .map(cb => cb.value);
+
+                activeLines = INITIAL_TRANSIT_LINES.filter(l => checkedIds.includes(l.id));
+                renderTransitStatus();
+                modal.classList.add('hidden');
+                logTerminal(`Transit HUD reconfigured: ${activeLines.length} lines active.`, 'success');
+            });
+
+            logTerminal('HUD initialized. All feeds online and active.', 'success');
         });
-      })
-      .catch(err => {
-        document.getElementById('news-list').textContent = 'ニュースの取得に失敗しました。';
-      });
-  </script>
+    </script>
 </body>
 </html>
