@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBER-LINK // TACTICAL MAP DASHBOARD v4.10</title>
+    <title>CYBER-LINK // TACTICAL MAP DASHBOARD</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Orbitron & Rajdhani -->
@@ -50,7 +50,7 @@
 
         /* Cyberpunk Glassmorphism Panel */
         .cyber-panel {
-            background: rgba(6, 18, 38, 0.7);
+            background: rgba(6, 18, 38, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(0, 243, 255, 0.25);
@@ -99,7 +99,7 @@
             box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
         }
 
-        /* Futuristic Scrollbar */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -116,7 +116,7 @@
             box-shadow: 0 0 10px var(--neon-cyan);
         }
 
-        /* Cyber Button Base Styling */
+        /* Cyber Button Styling */
         .cyber-btn {
             position: relative;
             background: rgba(0, 243, 255, 0.08);
@@ -136,20 +136,11 @@
         .cyber-btn:active {
             transform: scale(0.97);
         }
-
         .cyber-btn-active {
             background: rgba(0, 243, 255, 0.35) !important;
             border-color: var(--neon-cyan) !important;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.6) !important;
             color: #fff !important;
-        }
-
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
-        }
-        .animate-pulse-slow {
-            animation: pulse-slow 3s infinite ease-in-out;
         }
 
         /* Grid Background Pattern */
@@ -160,27 +151,22 @@
                 linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
         }
 
-        /* Map Pulse Animation */
-        @keyframes node-pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
-        }
-        .map-node-active {
-            animation: node-pulse 2s infinite;
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
         }
     </style>
 </head>
 <body class="min-h-screen relative grid-bg flex flex-col justify-between">
 
-    <!-- Interactive Background Canvas -->
+    <!-- Canvas Background for Particles -->
     <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
     <!-- Scanline Effect Overlay -->
     <div class="scanline-overlay fixed inset-0 pointer-events-none z-50"></div>
 
-    <!-- Main Application Wrapper -->
-    <div class="relative z-10 flex flex-col min-h-screen p-3 md:p-6 space-y-4 max-w-[1920px] mx-auto w-full">
+    <!-- Main Container -->
+    <div class="relative z-10 flex flex-col min-h-screen p-3 md:p-5 space-y-4 max-w-[1920px] mx-auto w-full">
         
         <!-- HEADER SECTION -->
         <header class="cyber-panel p-4 flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -191,58 +177,60 @@
                     </div>
                     <div>
                         <h1 class="font-orbitron text-xl md:text-2xl font-black tracking-wider text-white glow-cyan">
-                            NEO<span class="text-[var(--neon-cyan)]">OS</span> // TACTICAL MAP HUB
+                            NEO<span class="text-[var(--neon-cyan)]">OS</span> // GEOSPATIAL HUD
                         </h1>
-                        <p class="text-xs font-mono text-cyan-400 opacity-80 tracking-widest">JAPAN GEOSPATIAL FEED v4.10</p>
+                        <p class="text-xs font-mono text-cyan-400 opacity-80 tracking-widest">TACTICAL DASHBOARD v5.0 // GH-PAGES READY</p>
                     </div>
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <button id="audio-toggle" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="Toggle Cyber Audio SFX">
+                    <button id="audio-toggle" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="SFX Toggle">
                         <i class="fa-solid fa-volume-high text-xs" id="audio-icon"></i>
                         <span class="hidden sm:inline font-mono text-[10px]">SFX: ON</span>
                     </button>
-                    <button id="refresh-all-btn" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="Force Refresh Feeds">
+                    <button id="refresh-all-btn" class="cyber-btn p-2 text-xs rounded text-cyan-300 flex items-center space-x-1" title="Force Refresh">
                         <i class="fa-solid fa-rotate text-xs"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- System Status -->
-            <div class="grid grid-cols-3 gap-3 md:gap-6 w-full lg:w-auto text-center font-mono text-xs">
+            <!-- Header Info Bars -->
+            <div class="grid grid-cols-3 gap-3 w-full lg:w-auto text-center font-mono text-xs">
                 <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
-                    <div class="text-cyan-400 opacity-70">CPU LOAD</div>
-                    <div id="cpu-load" class="font-orbitron text-sm md:text-base font-bold text-white glow-cyan">14.2%</div>
+                    <div class="text-cyan-400 opacity-70">CPU TEMP</div>
+                    <div id="cpu-load" class="font-orbitron text-sm font-bold text-white glow-cyan">38.4°C</div>
                 </div>
                 <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
-                    <div class="text-cyan-400 opacity-70">LATENCY</div>
-                    <div id="latency-val" class="font-orbitron text-sm md:text-base font-bold text-white glow-cyan">12 ms</div>
+                    <div class="text-cyan-400 opacity-70">NETWORK</div>
+                    <div id="net-status" class="font-orbitron text-sm font-bold text-emerald-400 glow-cyan">CONNECTED</div>
                 </div>
                 <div class="bg-blue-950/40 p-2 rounded border border-cyan-500/20">
-                    <div class="text-cyan-400 opacity-70">NEURAL MESH</div>
-                    <div id="mesh-val" class="font-orbitron text-sm md:text-base font-bold text-emerald-400 glow-cyan">ONLINE</div>
+                    <div class="text-cyan-400 opacity-70">SYSTEM TIME</div>
+                    <div id="clock-display" class="font-orbitron text-sm font-bold text-white glow-cyan">--:--:--</div>
                 </div>
-        <!-- MAIN DASHBOARD CONTENT GRID -->
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow">
 
-            <!-- LEFT COLUMN: NEWS FEED & TERMINAL LOGS (5 COLS) -->
+            <!-- LEFT COLUMN: YAHOO! NEWS FEED (5 COLS) -->
             <section class="lg:col-span-5 flex flex-col space-y-4">
-                
-                <!-- YAHOO! NEWS FEED MODULE -->
                 <div class="cyber-panel p-4 flex flex-col flex-grow min-h-[520px]">
-                    <!-- Module Title & Tabs -->
+                    
+                    <!-- News Header & Category Selector -->
                     <div class="flex flex-col border-b border-cyan-500/30 pb-3 gap-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
                                 <i class="fa-solid fa-newspaper text-[var(--neon-cyan)] text-lg"></i>
                                 <h2 class="font-orbitron font-bold text-base text-white tracking-wider glow-cyan">
-                                    YAHOO! NEWS FEED <span class="text-xs text-cyan-400 font-mono font-normal">// LOCATION LINKED</span>
+                                    YAHOO! NEWS <span class="text-xs text-cyan-400 font-mono font-normal">// LOCATION LINKED</span>
                                 </h2>
                             </div>
-                            <span class="text-[10px] font-mono text-cyan-400 border border-cyan-500/30 px-1.5 py-0.5 rounded">GEO-LINK ON</span>
+                            <span class="text-[10px] font-mono text-cyan-400 border border-cyan-500/30 px-1.5 py-0.5 rounded">GEO-LINK ACTIVE</span>
                         </div>
 
-                        <!-- Category Selector Tabs -->
+                        <!-- Category Selector -->
                         <div class="flex flex-wrap gap-1 font-orbitron text-xs w-full pt-1">
                             <button class="cyber-btn cyber-btn-active px-2.5 py-1 text-[11px] rounded news-tab" data-cat="top">主要</button>
                             <button class="cyber-btn px-2.5 py-1 text-[11px] rounded news-tab" data-cat="it">IT・科学</button>
@@ -252,73 +240,67 @@
                         </div>
                     </div>
 
-                    <!-- News Items List Container -->
+                    <!-- News List Container -->
                     <div class="relative flex-grow mt-3 overflow-hidden">
-                        <!-- Loading Overlay -->
-                        <div id="news-loading" class="absolute inset-0 bg-slate-950/80 backdrop-blur flex flex-col items-center justify-center space-y-3 z-20">
-                            <div class="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                            <span class="font-mono text-xs text-cyan-400 tracking-widest">CONNECTING TO GEO-LOCATION FEED...</span>
+                        <div id="news-loading" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur flex flex-col items-center justify-center space-y-3 z-20">
+                            <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span class="font-mono text-xs text-cyan-400">CONNECTING FEED...</span>
                         </div>
-
-                        <!-- Scrollable Feed -->
                         <ul id="news-feed-list" class="space-y-2 h-full overflow-y-auto pr-2 max-h-[440px]">
-                            <!-- News items populated dynamically -->
+                            <!-- News Items Dynamic -->
                         </ul>
                     </div>
 
-                    <!-- Feed Footer Info -->
+                    <!-- Footer -->
                     <div class="mt-3 pt-2 border-t border-cyan-500/20 flex items-center justify-between font-mono text-[11px] text-cyan-400/80">
-                        <span id="news-last-updated"><i class="fa-solid fa-sync text-[10px] mr-1"></i>AUTO-SYNC: ACTIVE</span>
-                        <span class="text-slate-400">SOURCE: YAHOO! RSS</span>
+                        <span id="news-status-msg"><i class="fa-solid fa-check text-emerald-400 mr-1"></i>FEED: ONLINE</span>
+                        <span class="text-slate-400">YAHOO! JAPAN RSS</span>
                     </div>
                 </div>
 
-                <!-- DIAGNOSTIC SYSTEM LOG TERMINAL -->
+                <!-- DIAGNOSTIC TERMINAL LOG -->
                 <div class="cyber-panel p-3 font-mono text-xs flex flex-col space-y-2">
                     <div class="flex items-center justify-between border-b border-cyan-500/20 pb-1">
                         <span class="text-cyan-400 font-orbitron text-[11px]"><i class="fa-solid fa-terminal mr-2"></i>TACTICAL SYSTEM LOG</span>
-                        <span class="text-emerald-400 text-[10px]">● SYSTEM ONLINE</span>
+                        <span id="log-badge" class="text-emerald-400 text-[10px]">● READY</span>
                     </div>
                     <div id="terminal-log" class="h-20 overflow-y-auto space-y-1 text-slate-300 pr-1 text-[11px]">
-                        <div><span class="text-cyan-400">[00:00:01]</span> High-resolution vector map renderer online.</div>
+                        <div><span class="text-cyan-400">[00:00:00]</span> Cybernetic geospatial interface initialized.</div>
                     </div>
                 </div>
-
             </section>
 
-            <!-- CENTER COLUMN: DETAILED HIGH-RES JAPAN VECTOR MAP & WEATHER OVERLAY (7 COLS) -->
+            <!-- CENTER COLUMN: JAPAN SVG WIREFRAME MAP & WEATHER NODES (7 COLS) -->
             <section class="lg:col-span-7 flex flex-col space-y-4">
                 
-                <!-- MAIN HOLOGRAPHIC TACTICAL MAP CONTAINER -->
                 <div class="cyber-panel p-4 flex flex-col flex-grow relative overflow-hidden min-h-[580px]">
                     <!-- Map Header Controls -->
                     <div class="flex items-center justify-between border-b border-cyan-500/30 pb-2 z-10">
                         <div class="flex items-center space-x-2">
-                            <i class="fa-solid fa-earth-asia text-[var(--neon-cyan)] text-lg animate-pulse"></i>
-                            <h2 class="font-orbitron font-bold text-lg text-white tracking-wider glow-cyan">
-                                JAPAN ARCHIPELAGO <span class="text-xs text-cyan-400 font-mono font-normal">// TACTICAL GEO-MAP</span>
+                            <i class="fa-solid fa-earth-asia text-[var(--neon-cyan)] text-lg"></i>
+                            <h2 class="font-orbitron font-bold text-base text-white tracking-wider glow-cyan">
+                                JAPAN ARCHIPELAGO <span class="text-xs text-cyan-400 font-mono font-normal">// METEOROLOGICAL HUD</span>
                             </h2>
                         </div>
                         <div class="flex items-center space-x-3 font-mono text-xs text-cyan-300">
                             <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[var(--neon-cyan)] inline-block mr-1"></span> WEATHER NODE</span>
-                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[var(--neon-alert)] inline-block mr-1"></span> NEWS TARGET</span>
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[var(--neon-alert)] inline-block mr-1"></span> NEWS PIN</span>
                         </div>
                     </div>
 
-                    <!-- SVG Detailed Map Workspace -->
+                    <!-- SVG Map Workspace -->
                     <div class="relative w-full flex-grow flex items-center justify-center my-2 select-none overflow-hidden" id="map-workspace">
-                        <!-- Grid Lines overlay for futuristic radar feel -->
                         <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-cyan-500/5 pointer-events-none"></div>
 
-                        <!-- High-resolution SVG Wireframe Map of Japan -->
+                        <!-- SVG Map of Japan -->
                         <svg id="japan-svg-map" class="w-full h-full max-h-[520px] transition-all duration-500" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <radialGradient id="map-glow" cx="50%" cy="50%" r="50%">
-                                    <stop offset="0%" stop-color="rgba(0,243,255,0.15)" />
+                                    <stop offset="0%" stop-color="rgba(0,243,255,0.12)" />
                                     <stop offset="100%" stop-color="rgba(0,0,0,0)" />
                                 </radialGradient>
-                                <filter id="neon-stroke-glow" x="-20%" y="-20%" width="140%" height="140%">
-                                    <feGaussianBlur stdDeviation="3" result="blur" />
+                                <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="2.5" result="blur" />
                                     <feMerge>
                                         <feMergeNode in="blur" />
                                         <feMergeNode in="SourceGraphic" />
@@ -326,10 +308,9 @@
                                 </filter>
                             </defs>
 
-                            <!-- Background Glow Radial -->
                             <rect width="1000" height="800" fill="url(#map-glow)"/>
 
-                            <!-- Map Grid Lines -->
+                            <!-- Grid Overlay -->
                             <g stroke="rgba(0, 243, 255, 0.12)" stroke-width="1" stroke-dasharray="4,4">
                                 <line x1="0" y1="200" x2="1000" y2="200" />
                                 <line x1="0" y1="400" x2="1000" y2="400" />
@@ -339,129 +320,102 @@
                                 <line x1="750" y1="0" x2="750" y2="800" />
                             </g>
 
-                            <!-- DETAILED JAPAN ARCHIPELAGO SVG PATHS (Detailed Coastlines) -->
-                            <g id="japan-coastlines" fill="rgba(6, 28, 58, 0.5)" stroke="#00f3ff" stroke-width="1.6" stroke-linejoin="round" filter="url(#neon-stroke-glow)">
-                                <!-- HOKKAIDO (北海道) -->
-                                <path id="region-hokkaido" d="M 680,180 L 710,170 L 735,145 L 770,120 L 810,110 L 850,115 L 890,135 L 910,160 L 870,185 L 840,200 L 795,225 L 750,230 L 730,260 L 715,275 L 690,265 L 670,240 L 660,210 L 680,180 Z M 715,275 L 700,290 L 690,310 L 710,315 L 730,295 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-                                
-                                <!-- HONSHU - TOHOKU & KANTO & CHUBU (本州 東部) -->
-                                <path id="region-honshu-east" d="M 695,325 L 715,355 L 710,395 L 725,435 L 710,470 L 735,500 L 715,530 L 685,550 L 650,560 L 610,540 L 590,510 L 565,490 L 575,460 L 610,450 L 625,415 L 635,370 L 660,340 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-                                
-                                <!-- HONSHU - KANSAI & CHUGOKU (本州 西部) -->
-                                <path id="region-honshu-west" d="M 565,490 L 540,510 L 510,500 L 460,510 L 415,520 L 380,535 L 360,555 L 390,565 L 430,555 L 475,545 L 515,540 L 555,545 L 590,510 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-
-                                <!-- SHIKOKU (四国) -->
-                                <path id="region-shikoku" d="M 435,570 L 485,560 L 515,575 L 490,605 L 440,610 L 415,590 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-
-                                <!-- KYUSHU (九州) -->
-                                <path id="region-kyushu" d="M 345,565 L 375,570 L 370,610 L 385,645 L 370,680 L 335,690 L 315,660 L 320,610 L 335,580 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-
-                                <!-- OKINAWA & RYUKYU ISLANDS (沖縄・南西諸島) -->
-                                <g id="region-okinawa">
-                                    <path d="M 210,730 L 230,725 L 240,735 L 220,740 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-                                    <path d="M 170,755 L 185,750 L 190,760 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
-                                    <path d="M 130,775 L 145,770 L 150,780 Z" class="hover:fill-cyan-950/80 transition-colors cursor-pointer"/>
+                            <!-- JAPAN COASTLINES SVG PATHS -->
+                            <g id="japan-coastlines" fill="rgba(6, 28, 58, 0.55)" stroke="#00f3ff" stroke-width="1.6" stroke-linejoin="round" filter="url(#neon-glow)">
+                                <!-- Hokkaido -->
+                                <path d="M 680,180 L 710,170 L 735,145 L 770,120 L 810,110 L 850,115 L 890,135 L 910,160 L 870,185 L 840,200 L 795,225 L 750,230 L 730,260 L 715,275 L 690,265 L 670,240 L 660,210 L 680,180 Z M 715,275 L 700,290 L 690,310 L 710,315 L 730,295 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
+                                <!-- Honshu East -->
+                                <path d="M 695,325 L 715,355 L 710,395 L 725,435 L 710,470 L 735,500 L 715,530 L 685,550 L 650,560 L 610,540 L 590,510 L 565,490 L 575,460 L 610,450 L 625,415 L 635,370 L 660,340 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
+                                <!-- Honshu West -->
+                                <path d="M 565,490 L 540,510 L 510,500 L 460,510 L 415,520 L 380,535 L 360,555 L 390,565 L 430,555 L 475,545 L 515,540 L 555,545 L 590,510 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
+                                <!-- Shikoku -->
+                                <path d="M 435,570 L 485,560 L 515,575 L 490,605 L 440,610 L 415,590 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
+                                <!-- Kyushu -->
+                                <path d="M 345,565 L 375,570 L 370,610 L 385,645 L 370,680 L 335,690 L 315,660 L 320,610 L 335,580 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
+                                <!-- Okinawa -->
+                                <g>
+                                    <path d="M 210,730 L 230,725 L 240,735 L 220,740 Z" />
+                                    <path d="M 170,755 L 185,750 L 190,760 Z" />
+                                    <path d="M 130,775 L 145,770 L 150,780 Z" />
                                 </g>
-
-                                <!-- SADO ISLAND (佐渡島) -->
+                                <!-- Sado -->
                                 <path d="M 640,400 L 652,395 L 658,405 L 645,410 Z" />
                             </g>
 
-                            <!-- REGIONAL PREFECTURAL/SECTOR BOUNDARY WIRES -->
-                            <g stroke="rgba(0, 243, 255, 0.3)" stroke-width="0.8" stroke-dasharray="2,2" fill="none">
-                                <path d="M 660,340 L 705,370 M 635,370 L 690,405 M 625,415 L 710,440 M 610,450 L 720,480 M 575,460 L 660,535" />
-                                <path d="M 475,545 L 490,510 M 430,555 L 440,515" />
-                            </g>
-
-                            <!-- DYNAMIC CITY WEATHER NODES (SVG GROUPS) -->
+                            <!-- CITY WEATHER NODES -->
                             <g id="map-city-nodes">
-                                <!-- Tokyo (東京) -->
+                                <!-- Tokyo -->
                                 <g class="city-node cursor-pointer" data-city="tokyo" transform="translate(685, 520)">
-                                    <circle r="18" fill="rgba(0,243,255,0.15)" class="animate-ping" style="animation-duration: 3s;"></circle>
-                                    <circle r="7" fill="#00f3ff" stroke="#fff" stroke-width="2" class="box-glow-cyan"></circle>
-                                    <text x="14" y="4" fill="#ffffff" font-family="Orbitron" font-size="13" font-weight="bold" filter="url(#neon-stroke-glow)">TOKYO <tspan fill="#00f3ff" font-size="11">18.5°C</tspan></text>
-                                    <text x="14" y="18" fill="#94a3b8" font-family="Rajdhani" font-size="10">☁ PARTLY CLOUDY</text>
+                                    <circle r="16" fill="rgba(0,243,255,0.15)" class="animate-ping" style="animation-duration: 3s;"></circle>
+                                    <circle r="6" fill="#00f3ff" stroke="#fff" stroke-width="2"></circle>
+                                    <text x="12" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">TOKYO <tspan fill="#00f3ff">18.5°C ☁</tspan></text>
                                 </g>
 
-                                <!-- Osaka (大阪) -->
+                                <!-- Osaka -->
                                 <g class="city-node cursor-pointer" data-city="osaka" transform="translate(535, 530)">
-                                    <circle r="14" fill="rgba(0,243,255,0.15)" class="animate-ping" style="animation-duration: 4s;"></circle>
-                                    <circle r="6" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="-70" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">OSAKA <tspan fill="#00f3ff" font-size="10">20.1°C</tspan></text>
+                                    <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
+                                    <text x="-70" y="4" fill="#ffffff" font-family="Orbitron" font-size="11" font-weight="bold">OSAKA <tspan fill="#00f3ff">20.1°C ☀️</tspan></text>
                                 </g>
 
-                                <!-- Nagoya (名古屋) -->
+                                <!-- Nagoya -->
                                 <g class="city-node cursor-pointer" data-city="nagoya" transform="translate(605, 525)">
                                     <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
                                     <text x="-65" y="-10" fill="#ffffff" font-family="Orbitron" font-size="11">NAGOYA <tspan fill="#00f3ff">17.8°C</tspan></text>
                                 </g>
 
-                                <!-- Sapporo (札幌) -->
+                                <!-- Sapporo -->
                                 <g class="city-node cursor-pointer" data-city="sapporo" transform="translate(735, 235)">
-                                    <circle r="14" fill="rgba(0,243,255,0.15)" class="animate-ping" style="animation-duration: 3.5s;"></circle>
-                                    <circle r="6" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="14" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">SAPPORO <tspan fill="#00f3ff" font-size="10">8.2°C</tspan></text>
-                                    <text x="14" y="18" fill="#94a3b8" font-family="Rajdhani" font-size="10">🌧 RAIN</text>
+                                    <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
+                                    <text x="12" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">SAPPORO <tspan fill="#00f3ff">8.2°C 🌧</tspan></text>
                                 </g>
 
-                                <!-- Sendai (仙台) -->
+                                <!-- Sendai -->
                                 <g class="city-node cursor-pointer" data-city="sendai" transform="translate(710, 420)">
                                     <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="12" y="4" fill="#ffffff" font-family="Orbitron" font-size="11">SENDAI <tspan fill="#00f3ff">14.3°C</tspan></text>
+                                    <text x="10" y="4" fill="#ffffff" font-family="Orbitron" font-size="11">SENDAI <tspan fill="#00f3ff">14.3°C</tspan></text>
                                 </g>
 
-                                <!-- Hiroshima (広島) -->
-                                <g class="city-node cursor-pointer" data-city="hiroshima" transform="translate(440, 535)">
-                                    <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="-75" y="15" fill="#ffffff" font-family="Orbitron" font-size="11">HIROSHIMA</text>
-                                </g>
-
-                                <!-- Fukuoka (福岡) -->
+                                <!-- Fukuoka -->
                                 <g class="city-node cursor-pointer" data-city="fukuoka" transform="translate(345, 600)">
-                                    <circle r="14" fill="rgba(0,243,255,0.15)" class="animate-ping" style="animation-duration: 4.2s;"></circle>
-                                    <circle r="6" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="-75" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">FUKUOKA <tspan fill="#00f3ff" font-size="10">21.4°C</tspan></text>
+                                    <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
+                                    <text x="-75" y="4" fill="#ffffff" font-family="Orbitron" font-size="11" font-weight="bold">FUKUOKA <tspan fill="#00f3ff">21.4°C</tspan></text>
                                 </g>
 
-                                <!-- Naha (那覇) -->
+                                <!-- Naha -->
                                 <g class="city-node cursor-pointer" data-city="naha" transform="translate(225, 735)">
-                                    <circle r="6" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
-                                    <text x="12" y="4" fill="#ffffff" font-family="Orbitron" font-size="11">NAHA <tspan fill="#00f3ff">25.0°C</tspan></text>
+                                    <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
+                                    <text x="10" y="4" fill="#ffffff" font-family="Orbitron" font-size="11">NAHA <tspan fill="#00f3ff">25.0°C</tspan></text>
                                 </g>
                             </g>
 
-                            <!-- DYNAMIC POPUP MARKER FOR NEWS SELECTION -->
+                            <!-- POPUP MARKER FOR SELECTED NEWS -->
                             <g id="news-map-popup" class="transition-all duration-300 opacity-0 pointer-events-none" transform="translate(0, 0)">
-                                <circle r="22" fill="none" stroke="#ff0055" stroke-width="2" class="animate-ping"></circle>
-                                <circle r="8" fill="#ff0055" stroke="#ffffff" stroke-width="2"></circle>
+                                <circle r="20" fill="none" stroke="#ff0055" stroke-width="2" class="animate-ping"></circle>
+                                <circle r="7" fill="#ff0055" stroke="#ffffff" stroke-width="2"></circle>
                                 
-                                <!-- Floating HUD Box -->
                                 <g transform="translate(15, -40)">
-                                    <rect x="0" y="0" width="220" height="55" fill="rgba(3, 7, 18, 0.9)" stroke="#ff0055" stroke-width="1.5" rx="4" filter="url(#neon-stroke-glow)"/>
+                                    <rect x="0" y="0" width="220" height="52" fill="rgba(3, 7, 18, 0.95)" stroke="#ff0055" stroke-width="1.5" rx="4"/>
                                     <text id="popup-target-city" x="10" y="18" fill="#ff0055" font-family="Orbitron" font-size="11" font-weight="bold">TARGET: TOKYO METROPOLIS</text>
-                                    <text id="popup-news-title" x="10" y="36" fill="#ffffff" font-family="Rajdhani" font-size="11" font-weight="500">SELECTING NEWS FEED...</text>
+                                    <text id="popup-news-title" x="10" y="36" fill="#ffffff" font-family="Rajdhani" font-size="11" font-weight="500">HOVER NEWS ITEM TO DISPLAY</text>
                                 </g>
                             </g>
                         </svg>
                     </div>
 
-                    <!-- TRANSIT HUD (INTEGRATED AT BOTTOM OF MAP COLUMN) -->
+                    <!-- TRANSIT MONITOR PANEL AT BOTTOM -->
                     <div class="mt-2 pt-3 border-t border-cyan-500/30">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center space-x-2">
                                 <i class="fa-solid fa-train-subway text-[var(--neon-cyan)]"></i>
                                 <h3 class="font-orbitron font-bold text-sm text-white tracking-wider glow-cyan">
-                                    TRANSIT MATRIX <span class="text-xs text-cyan-400 font-mono font-normal">// LIVE MONITOR</span>
+                                    TRANSIT MATRIX <span class="text-xs text-cyan-400 font-mono font-normal">// TRAIN STATUS</span>
                                 </h3>
                             </div>
-                            <button id="add-line-btn" class="cyber-btn px-2.5 py-0.5 text-[10px] rounded text-cyan-300">
-                                <i class="fa-solid fa-sliders mr-1"></i>CONFIG LINES
-                            </button>
+                            <span class="font-mono text-[10px] text-cyan-400">UPDATED: REAL-TIME</span>
                         </div>
                         
-                        <!-- Transit status horizontal grid -->
                         <div id="transit-lines-container" class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <!-- Transit Status Cards Populated Dynamically -->
+                            <!-- Transit status populated dynamically -->
                         </div>
                     </div>
                 </div>
@@ -472,46 +426,141 @@
         <!-- FOOTER BAR -->
         <footer class="cyber-panel p-2 px-4 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-cyan-400/80 gap-2">
             <div class="flex items-center space-x-3">
-                <span>SECURITY LEVEL: <span class="text-emerald-400 font-bold">MAXIMUM</span></span>
+                <span>SECURITY: <span class="text-emerald-400 font-bold">ONLINE</span></span>
                 <span>|</span>
-                <span>GEOSPATIAL MESH: <span class="text-cyan-300">ACTIVE</span></span>
+                <span>GEOSPATIAL FEED: <span class="text-cyan-300">ACTIVE</span></span>
             </div>
             <div class="flex items-center space-x-4">
-                <canvas id="audio-wave-canvas" class="w-24 h-4 bg-transparent border-b border-cyan-500/40"></canvas>
-                <span>© 2026 NEO-TOKYO SYSTEMS INC.</span>
+                <span>© 2026 TACTICAL CYBER DASHBOARD</span>
             </div>
         </footer>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        // ... existing audio, particle background, clock & visualizer code ...
+        /**
+         * AUDIO SOUND EFFECTS SYSTEM
+         */
+        class CyberAudio {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.ctx = new AudioContext();
+                }
+            }
+
+            playBeep(freq = 880, type = 'sine', duration = 0.05) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            playClick() { this.playBeep(1200, 'triangle', 0.03); }
+        }
+
+        const audio = new CyberAudio();
 
         /**
-         * MAP & NEWS INTERACTIVE LINKING SYSTEM
+         * BACKGROUND CANVAS ANIMATION
          */
-        // Mapping keywords in Yahoo News to City Coordinates on Map
+        const initBgCanvas = () => {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = Array.from({ length: 35 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                size: Math.random() * 1.8 + 0.5
+            }));
+
+            const animate = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            };
+            animate();
+        };
+
+        /**
+         * TERMINAL LOG SYSTEM
+         */
+        const logTerminal = (msg, type = 'info') => {
+            const logBox = document.getElementById('terminal-log');
+            if (!logBox) return;
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            
+            let color = 'text-cyan-400';
+            if (type === 'error') color = 'text-rose-400';
+            if (type === 'success') color = 'text-emerald-400';
+
+            div.innerHTML = `<span class="${color}">[${timeStr}]</span> ${msg}`;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        };
+
+        /**
+         * MAP & NEWS INTERACTIVE LINKING
+         */
         const CITY_MAP_COORDINATES = {
             tokyo: { x: 685, y: 520, name: 'TOKYO METROPOLIS' },
             osaka: { x: 535, y: 530, name: 'OSAKA BAY SECTOR' },
             nagoya: { x: 605, y: 525, name: 'NAGOYA REGION' },
             sapporo: { x: 735, y: 235, name: 'SAPPORO NORTH' },
             sendai: { x: 710, y: 420, name: 'SENDAI SECTOR' },
-            hiroshima: { x: 440, y: 535, name: 'HIROSHIMA WEST' },
             fukuoka: { x: 345, y: 600, name: 'FUKUOKA KYUSHU' },
             naha: { x: 225, y: 735, name: 'NAHA OKINAWA' }
         };
 
-        // Detect city from article text
         const detectCityFromText = (text) => {
-            if (text.includes('東京') || text.includes('首都') || text.includes('政府') || text.includes('都内')) return 'tokyo';
             if (text.includes('大阪') || text.includes('関西')) return 'osaka';
             if (text.includes('名古屋') || text.includes('愛知')) return 'nagoya';
             if (text.includes('札幌') || text.includes('北海道')) return 'sapporo';
             if (text.includes('仙台') || text.includes('東北')) return 'sendai';
             if (text.includes('福岡') || text.includes('九州')) return 'fukuoka';
             if (text.includes('沖縄') || text.includes('那覇')) return 'naha';
-            return 'tokyo'; // Default to Tokyo center
+            return 'tokyo';
         };
 
         const showNewsMapPopup = (cityKey, newsTitle) => {
@@ -524,15 +573,10 @@
 
             popup.setAttribute('transform', `translate(${coord.x}, ${coord.y})`);
             targetCityText.textContent = `TARGET: ${coord.name}`;
-            
-            // Truncate long title
-            const shortTitle = newsTitle.length > 20 ? newsTitle.substring(0, 20) + '...' : newsTitle;
-            newsTitleText.textContent = shortTitle;
+            newsTitleText.textContent = newsTitle.length > 22 ? newsTitle.substring(0, 22) + '...' : newsTitle;
 
             popup.classList.remove('opacity-0');
             popup.classList.add('opacity-100');
-
-            logTerminal(`Map tactical pin activated: [${coord.name}]`, 'info');
         };
 
         const hideNewsMapPopup = () => {
@@ -544,9 +588,40 @@
         };
 
         /**
-         * YAHOO! NEWS FEED RENDERER WITH MAP LINKING
+         * ROBUST NEWS FETCH SYSTEM WITH FALLBACK
          */
-        const renderNewsItems = (items, isFallback = false) => {
+        const FALLBACK_NEWS = {
+            top: [
+                { title: "【速報】次世代AIシステムが国内インフラ運用に導入開始", link: "https://news.yahoo.co.jp/", pubDate: "09:30" },
+                { title: "東京株式市場、ハイテク関連株を中心に大幅反発", link: "https://news.yahoo.co.jp/", pubDate: "09:15" },
+                { title: "気象庁、主要都市における気象観測センサーを最新型へ更新", link: "https://news.yahoo.co.jp/", pubDate: "08:50" },
+                { title: "関西国際空港、スマート自動手荷物搬送ロボットを全面導入", link: "https://news.yahoo.co.jp/", pubDate: "08:20" },
+                { title: "北海道エリア、今週末にかけて寒気の影響で局地的大雨注意", link: "https://news.yahoo.co.jp/", pubDate: "07:45" }
+            ],
+            it: [
+                { title: "量子コンピューティング研究で国内グループが革新成果を発表", link: "https://news.yahoo.co.jp/", pubDate: "10:10" },
+                { title: "次世代高速データ通信規格システムの実証実験が名古屋で公開", link: "https://news.yahoo.co.jp/", pubDate: "09:00" }
+            ],
+            bus: [
+                { title: "主要企業によるIT設備投資計画、前年比15%増の予測", link: "https://news.yahoo.co.jp/", pubDate: "09:05" }
+            ],
+            world: [
+                { title: "国際宇宙ステーション、新たな共同実験モジュールのドッキング成功", link: "https://news.yahoo.co.jp/", pubDate: "08:00" }
+            ],
+            dom: [
+                { title: "全国のスマートシティ実証地域で自動運転バスの営業運行を開始", link: "https://news.yahoo.co.jp/", pubDate: "09:40" }
+            ]
+        };
+
+        const RSS_FEEDS = {
+            top: 'https://news.yahoo.co.jp/rss/topics/top-picks.xml',
+            it: 'https://news.yahoo.co.jp/rss/topics/it.xml',
+            bus: 'https://news.yahoo.co.jp/rss/topics/business.xml',
+            world: 'https://news.yahoo.co.jp/rss/topics/world.xml',
+            dom: 'https://news.yahoo.co.jp/rss/topics/domestic.xml'
+        };
+
+        const renderNewsItems = (items) => {
             const newsList = document.getElementById('news-feed-list');
             newsList.innerHTML = '';
 
@@ -555,7 +630,9 @@
                 const li = document.createElement('li');
                 li.className = 'cyber-panel p-2.5 hover:border-[var(--neon-cyan)] transition-all duration-200 group cursor-pointer flex items-start justify-between space-x-3';
                 
-                const dateStr = isFallback ? item.pubDate : new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const dateStr = typeof item.pubDate === 'string' && item.pubDate.length < 10 
+                    ? item.pubDate 
+                    : new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 li.innerHTML = `
                     <div class="flex items-start space-x-2.5 overflow-hidden">
@@ -570,40 +647,133 @@
                     </div>
                 `;
 
-                // Hover & Click Map Triggering
                 li.addEventListener('mouseenter', () => {
-                    audio.playBeep(1400, 'sine', 0.02, 0.04);
+                    audio.playBeep(1400, 'sine', 0.02);
                     showNewsMapPopup(cityKey, item.title);
                 });
 
-                li.addEventListener('mouseleave', () => {
-                    hideNewsMapPopup();
-                });
-
+                li.addEventListener('mouseleave', () => hideNewsMapPopup());
                 li.addEventListener('click', () => audio.playClick());
                 newsList.appendChild(li);
             });
         };
 
+        const fetchNewsFeed = async (cat = 'top') => {
+            const loader = document.getElementById('news-loading');
+            const statusMsg = document.getElementById('news-status-msg');
+            if (loader) loader.classList.remove('hidden');
+
+            const rssUrl = RSS_FEEDS[cat] || RSS_FEEDS.top;
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            try {
+                const res = await fetch(apiUrl, { cache: 'no-store' });
+                if (!res.ok) throw new Error('API Response Error');
+                const data = await res.json();
+                
+                if (data && data.items && data.items.length > 0) {
+                    renderNewsItems(data.items.slice(0, 8));
+                    if (statusMsg) statusMsg.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>FEED: LIVE (RSS)`;
+                    logTerminal(`Yahoo! News feed updated: [${cat.toUpperCase()}]`, 'success');
+                } else {
+                    throw new Error('Empty RSS items');
+                }
+            } catch (err) {
+                // Fallback handling when network/API fails
+                logTerminal(`CORS/API Blocked. Using tactical fallback dataset.`, 'error');
+                const fallbackItems = FALLBACK_NEWS[cat] || FALLBACK_NEWS.top;
+                renderNewsItems(fallbackItems);
+                if (statusMsg) statusMsg.innerHTML = `<i class="fa-solid fa-shield text-amber-400 mr-1"></i>FEED: FALLBACK DATASET`;
+            } finally {
+                if (loader) loader.classList.add('hidden');
+            }
+        };
+
         /**
-         * MAP CITY NODE INTERACTION
+         * TRANSIT MATRIX RENDERER
          */
-        const initCityNodeEvents = () => {
+        const renderTransitStatus = () => {
+            const container = document.getElementById('transit-lines-container');
+            if (!container) return;
+
+            const lines = [
+                { name: '山手線 / YAMANOTE', status: 'NORMAL', icon: 'fa-circle-check', color: 'text-emerald-400', border: 'border-emerald-500/30' },
+                { name: '中央線 / CHUO LINE', status: 'MINOR DELAY (5m)', icon: 'fa-triangle-exclamation', color: 'text-amber-400', border: 'border-amber-500/30' },
+                { name: '東海道新幹線 / TOKAIDO', status: 'NORMAL', icon: 'fa-circle-check', color: 'text-emerald-400', border: 'border-emerald-500/30' }
+            ];
+
+            container.innerHTML = lines.map(l => `
+                <div class="cyber-panel p-2 flex items-center justify-between border ${l.border}">
+                    <span class="font-orbitron text-xs font-bold text-slate-200">${l.name}</span>
+                    <span class="font-mono text-[11px] ${l.color} flex items-center">
+                        <i class="fa-solid ${l.icon} mr-1 text-[10px]"></i> ${l.status}
+                    </span>
+                </div>
+            `).join('');
+        };
+
+        /**
+         * INITIALIZATION & EVENT LISTENERS
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            initBgCanvas();
+            renderTransitStatus();
+            fetchNewsFeed('top');
+
+            // System Clock
+            setInterval(() => {
+                const clock = document.getElementById('clock-display');
+                if (clock) clock.textContent = new Date().toTimeString().split(' ')[0];
+            }, 1000);
+
+            // News Category Tabs
+            document.querySelectorAll('.news-tab').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    audio.playClick();
+                    document.querySelectorAll('.news-tab').forEach(b => b.classList.remove('cyber-btn-active'));
+                    btn.classList.add('cyber-btn-active');
+                    const cat = btn.getAttribute('data-cat');
+                    fetchNewsFeed(cat);
+                });
+            });
+
+            // Map City Nodes Click Event
             document.querySelectorAll('.city-node').forEach(node => {
-                node.addEventListener('click', (e) => {
+                node.addEventListener('click', () => {
+                    audio.playClick();
                     const cityKey = node.getAttribute('data-city');
                     const cityData = CITY_MAP_COORDINATES[cityKey];
-                    audio.playClick();
                     if (cityData) {
-                        showNewsMapPopup(cityKey, `METEOROLOGICAL SENSOR ONLINE`);
-                        logTerminal(`Manual location override: Focused on ${cityData.name}`, 'success');
+                        showNewsMapPopup(cityKey, `WEATHER SENSOR ACTIVE`);
+                        logTerminal(`Map Node Selected: ${cityData.name}`, 'info');
                     }
                 });
             });
-        };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initCityNodeEvents();
+            // SFX Toggle Button
+            const audioBtn = document.getElementById('audio-toggle');
+            audioBtn.addEventListener('click', () => {
+                audio.enabled = !audio.enabled;
+                const icon = document.getElementById('audio-icon');
+                if (audio.enabled) {
+                    audioBtn.querySelector('span').textContent = 'SFX: ON';
+                    icon.className = 'fa-solid fa-volume-high text-xs';
+                    logTerminal('Audio sound effects enabled.', 'info');
+                } else {
+                    audioBtn.querySelector('span').textContent = 'SFX: OFF';
+                    icon.className = 'fa-solid fa-volume-xmark text-xs';
+                    logTerminal('Audio sound effects muted.', 'info');
+                }
+            });
+
+            // Manual Refresh Button
+            document.getElementById('refresh-all-btn').addEventListener('click', () => {
+                audio.playClick();
+                const activeTab = document.querySelector('.news-tab.cyber-btn-active');
+                const cat = activeTab ? activeTab.getAttribute('data-cat') : 'top';
+                fetchNewsFeed(cat);
+                logTerminal('Manual dashboard sync initiated.', 'info');
+            });
         });
     </script>
 </body>
