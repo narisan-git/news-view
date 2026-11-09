@@ -314,32 +314,32 @@
                             <g stroke="rgba(0, 243, 255, 0.12)" stroke-width="1" stroke-dasharray="4,4">
                                 <line x1="0" y1="200" x2="1000" y2="200" />
                                 <line x1="0" y1="400" x2="1000" y2="400" />
-                                <line x1="0" y1="600" x2="1000" y2="600" />
-                                <line x1="250" y1="0" x2="250" y2="800" />
-                                <line x1="500" y1="0" x2="500" y2="800" />
-                                <line x1="750" y1="0" x2="750" y2="800" />
-                            </g>
-
-                            <!-- JAPAN COASTLINES SVG PATHS -->
-                            <g id="japan-coastlines" fill="rgba(6, 28, 58, 0.55)" stroke="#00f3ff" stroke-width="1.6" stroke-linejoin="round" filter="url(#neon-glow)">
-                                <!-- Hokkaido -->
-                                <path d="M 680,180 L 710,170 L 735,145 L 770,120 L 810,110 L 850,115 L 890,135 L 910,160 L 870,185 L 840,200 L 795,225 L 750,230 L 730,260 L 715,275 L 690,265 L 670,240 L 660,210 L 680,180 Z M 715,275 L 700,290 L 690,310 L 710,315 L 730,295 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
-                                <!-- Honshu East -->
-                                <path d="M 695,325 L 715,355 L 710,395 L 725,435 L 710,470 L 735,500 L 715,530 L 685,550 L 650,560 L 610,540 L 590,510 L 565,490 L 575,460 L 610,450 L 625,415 L 635,370 L 660,340 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
-                                <!-- Honshu West -->
-                                <path d="M 565,490 L 540,510 L 510,500 L 460,510 L 415,520 L 380,535 L 360,555 L 390,565 L 430,555 L 475,545 L 515,540 L 555,545 L 590,510 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
-                                <!-- Shikoku -->
-                                <path d="M 435,570 L 485,560 L 515,575 L 490,605 L 440,610 L 415,590 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
-                                <!-- Kyushu -->
-                                <path d="M 345,565 L 375,570 L 370,610 L 385,645 L 370,680 L 335,690 L 315,660 L 320,610 L 335,580 Z" class="hover:fill-cyan-900/60 transition-colors cursor-pointer"/>
-                                <!-- Okinawa -->
-                                <g>
-                                    <path d="M 210,730 L 230,725 L 240,735 L 220,740 Z" />
-                                    <path d="M 170,755 L 185,750 L 190,760 Z" />
-                                    <path d="M 130,775 L 145,770 L 150,780 Z" />
+                            <!-- JAPAN COASTLINES SVG PATHS (NUREYON GEOMETRIC / TACTICAL STYLE) -->
+                            <g id="japan-coastlines" fill="rgba(0, 243, 255, 0.08)" stroke="#00f3ff" stroke-width="1.8" stroke-linejoin="round" filter="url(#neon-glow)">
+                                <!-- Hokkaido Region -->
+                                <path d="M 680,180 L 710,145 L 750,115 L 810,105 L 870,120 L 915,155 L 895,190 L 825,215 L 760,230 L 725,275 L 685,260 L 660,220 Z M 715,275 L 690,305 L 720,315 Z" class="hover:fill-cyan-500/25 transition-colors cursor-pointer"/>
+                                
+                                <!-- Honshu - Northern / Tohoku & Kanto Region -->
+                                <path d="M 695,315 L 725,350 L 715,400 L 735,445 L 710,480 L 740,510 L 705,535 L 675,550 L 635,540 L 620,495 L 630,445 L 640,390 L 665,340 Z" class="hover:fill-cyan-500/25 transition-colors cursor-pointer"/>
+                                
+                                <!-- Honshu - Chubu / Kansai / Chugoku Region -->
+                                <path d="M 635,540 L 590,515 L 565,485 L 525,500 L 465,510 L 400,530 L 370,550 L 400,570 L 455,555 L 515,545 L 560,555 L 610,545 Z" class="hover:fill-cyan-500/25 transition-colors cursor-pointer"/>
+                                
+                                <!-- Shikoku Region -->
+                                <path d="M 435,570 L 490,555 L 525,575 L 495,610 L 435,615 L 410,590 Z" class="hover:fill-cyan-500/25 transition-colors cursor-pointer"/>
+                                
+                                <!-- Kyushu Region -->
+                                <path d="M 345,560 L 380,565 L 375,610 L 390,650 L 365,690 L 330,695 L 310,660 L 315,610 L 335,575 Z" class="hover:fill-cyan-500/25 transition-colors cursor-pointer"/>
+                                
+                                <!-- Okinawa Archipelago -->
+                                <g class="hover:fill-cyan-500/30 transition-colors cursor-pointer">
+                                    <path d="M 215,730 L 235,725 L 245,735 L 225,742 Z" />
+                                    <path d="M 175,755 L 190,750 L 195,760 Z" />
+                                    <path d="M 135,775 L 150,770 L 155,780 Z" />
                                 </g>
-                                <!-- Sado -->
-                                <path d="M 640,400 L 652,395 L 658,405 L 645,410 Z" />
+
+                                <!-- Sado & Minor Islands -->
+                                <path d="M 645,395 L 658,390 L 662,402 L 648,408 Z" />
                             </g>
 
                             <!-- CITY WEATHER NODES -->
@@ -364,7 +364,7 @@
                                 </g>
 
                                 <!-- Sapporo -->
-                                <g class="city-node cursor-pointer" data-city="sapporo" transform="translate(735, 235)">
+                                <g class="city-node cursor-pointer" data-city="sapporo" transform="translate(745, 220)">
                                     <circle r="5" fill="#00f3ff" stroke="#fff" stroke-width="1.5"></circle>
                                     <text x="12" y="4" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold">SAPPORO <tspan fill="#00f3ff">8.2°C 🌧</tspan></text>
                                 </g>
