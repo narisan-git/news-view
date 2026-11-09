@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYBER TACTICAL COMMAND DASHBOARD</title>
+  <title>J.A.R.V.I.S. TACTICAL COMMAND INTERFACE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Noto+Sans+JP:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #040814;
-      --panel-bg: rgba(8, 16, 36, 0.75);
-      --panel-border: rgba(0, 240, 255, 0.3);
+      --bg-dark: #02060d;
+      --panel-bg: rgba(6, 15, 30, 0.85);
+      --panel-border: rgba(255, 102, 0, 0.4);
+      --arc-orange: #ff6600;
+      --arc-orange-glow: rgba(255, 102, 0, 0.6);
       --cyan: #00f0ff;
-      --blue-glow: #0077ff;
+      --cyan-glow: rgba(0, 240, 255, 0.5);
       --neon-green: #00ffaa;
       --warning: #ffaa00;
       --alert: #ff0055;
-      --text-main: #cce7ff;
-      --text-dim: #5588aa;
+      --text-main: #e0f2fe;
+      --text-dim: #7dd3fc;
       --font-tech: 'Orbitron', sans-serif;
       --font-mono: 'Share Tech Mono', monospace;
       --font-jp: 'Noto Sans JP', sans-serif;
@@ -42,7 +44,6 @@
       position: relative;
     }
 
-    /* Cyber Canvas Background */
     #bg-canvas {
       position: fixed;
       top: 0;
@@ -53,59 +54,65 @@
       pointer-events: none;
     }
 
-    /* Scanline overlay */
     .scanlines {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
       background-size: 100% 4px;
       z-index: 10;
       pointer-events: none;
-      opacity: 0.6;
+      opacity: 0.7;
     }
 
-    /* Outer Layout */
     .app-header {
       z-index: 2;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 12px 24px;
-      background: linear-gradient(180deg, rgba(0,240,255,0.15) 0%, rgba(4,8,20,0.8) 100%);
-      border-bottom: 1px solid var(--cyan);
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+      background: linear-gradient(180deg, rgba(255,102,0,0.15) 0%, rgba(2,6,13,0.9) 100%);
+      border-bottom: 2px solid var(--arc-orange);
+      box-shadow: 0 0 20px var(--arc-orange-glow);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .brand-logo {
-      width: 28px;
-      height: 28px;
+    .arc-reactor-icon {
+      width: 32px;
+      height: 32px;
       border: 2px solid var(--cyan);
-      transform: rotate(45deg);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 10px var(--cyan);
+      box-shadow: 0 0 12px var(--cyan);
+      animation: reactorSpin 10s linear infinite;
     }
 
-    .brand-logo-inner {
+    @keyframes reactorSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .arc-reactor-core {
       width: 12px;
       height: 12px;
-      background: var(--cyan);
+      background: var(--arc-orange);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--arc-orange);
     }
 
     .brand-title {
       font-family: var(--font-tech);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: #fff;
-      text-shadow: 0 0 10px var(--cyan);
+      text-shadow: 0 0 10px var(--arc-orange), 0 0 20px var(--arc-orange);
     }
 
     .header-info {
@@ -116,19 +123,20 @@
     }
 
     .status-badge {
-      color: var(--neon-green);
+      color: var(--cyan);
       display: flex;
       align-items: center;
       gap: 6px;
+      text-shadow: 0 0 8px var(--cyan);
     }
     .status-badge::before {
       content: '';
       display: inline-block;
       width: 8px;
       height: 8px;
-      background: var(--neon-green);
+      background: var(--cyan);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--neon-green);
+      box-shadow: 0 0 8px var(--cyan);
       animation: pulse 1.5s infinite;
     }
 
@@ -147,69 +155,55 @@
       height: calc(100vh - 65px);
     }
 
-    /* Cyber Panel Styling */
     .cyber-panel {
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
-      border-radius: 4px;
-      backdrop-filter: blur(10px);
-      box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5);
+      clip-path: polygon(
+        0 0, 
+        calc(100% - 15px) 0, 100% 15px, 
+        100% 100%, 
+        15px 100%, 0 calc(100% - 15px)
+      );
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 0 20px rgba(255, 102, 0, 0.08), 0 4px 25px rgba(0, 0, 0, 0.7);
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
     }
 
-    .cyber-panel::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 8px; height: 8px;
-      border-top: 2px solid var(--cyan);
-      border-left: 2px solid var(--cyan);
-    }
-    .cyber-panel::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 8px; height: 8px;
-      border-bottom: 2px solid var(--cyan);
-      border-right: 2px solid var(--cyan);
-    }
-
     .panel-header {
-      padding: 10px 16px;
-      background: rgba(0, 240, 255, 0.08);
-      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+      padding: 12px 16px;
+      background: linear-gradient(90deg, rgba(255, 102, 0, 0.15) 0%, rgba(0, 240, 255, 0.05) 100%);
+      border-bottom: 1px solid rgba(255, 102, 0, 0.3);
       font-family: var(--font-tech);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--cyan);
+      letter-spacing: 2px;
+      color: var(--arc-orange);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      text-shadow: 0 0 8px var(--arc-orange-glow);
     }
 
     .panel-content {
-      padding: 12px;
+      padding: 14px;
       flex: 1;
       overflow-y: auto;
     }
 
-    /* Custom Scrollbar */
     .panel-content::-webkit-scrollbar {
       width: 4px;
     }
     .panel-content::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.4);
     }
     .panel-content::-webkit-scrollbar-thumb {
-      background: var(--cyan);
-      box-shadow: 0 0 5px var(--cyan);
+      background: var(--arc-orange);
+      box-shadow: 0 0 8px var(--arc-orange);
     }
 
-    /* News Items */
     .news-list {
       display: flex;
       flex-direction: column;
@@ -217,19 +211,19 @@
     }
 
     .news-item {
-      background: rgba(0, 30, 60, 0.4);
-      border: 1px solid rgba(0, 240, 255, 0.15);
-      border-left: 3px solid var(--cyan);
-      padding: 10px;
-      border-radius: 2px;
+      background: rgba(6, 20, 40, 0.6);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-left: 3px solid var(--arc-orange);
+      padding: 10px 12px;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
     }
 
     .news-item:hover, .news-item.active {
-      background: rgba(0, 240, 255, 0.15);
-      border-color: var(--cyan);
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      background: rgba(255, 102, 0, 0.15);
+      border-color: var(--arc-orange);
+      box-shadow: 0 0 15px var(--arc-orange-glow);
       transform: translateX(4px);
     }
 
@@ -243,8 +237,9 @@
     }
 
     .news-location-tag {
-      color: var(--neon-green);
+      color: var(--cyan);
       font-weight: bold;
+      text-shadow: 0 0 6px var(--cyan);
     }
 
     .news-title {
@@ -258,12 +253,11 @@
       margin-top: 6px;
       font-family: var(--font-mono);
       font-size: 0.7rem;
-      color: var(--cyan);
+      color: var(--arc-orange);
       text-decoration: none;
     }
     .news-link:hover { text-decoration: underline; }
 
-    /* Map Center Panel */
     .map-container {
       position: relative;
       width: 100%;
@@ -271,19 +265,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, rgba(0, 60, 120, 0.2) 0%, rgba(4, 8, 20, 0.8) 70%);
+      background: radial-gradient(circle at center, rgba(0, 60, 120, 0.25) 0%, rgba(2, 6, 13, 0.9) 75%);
       overflow: hidden;
     }
 
-    /* SVG Map */
     #japan-map-svg {
       width: 90%;
       height: 90%;
-      filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.4));
+      filter: drop-shadow(0 0 12px var(--cyan-glow));
     }
 
     .land-mass {
-      fill: rgba(0, 35, 70, 0.7);
+      fill: rgba(4, 25, 55, 0.75);
       stroke: var(--cyan);
       stroke-width: 1.5;
       stroke-linecap: round;
@@ -293,17 +286,16 @@
 
     .city-node {
       cursor: pointer;
-      transition: all 0.3s;
     }
 
     .city-node circle.pin {
-      fill: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan);
+      fill: var(--arc-orange);
+      box-shadow: 0 0 12px var(--arc-orange);
     }
 
     .city-node circle.pulse-ring {
       fill: none;
-      stroke: var(--cyan);
+      stroke: var(--arc-orange);
       stroke-width: 1.5;
       animation: mapPulse 2s infinite ease-out;
       transform-origin: center;
@@ -321,14 +313,13 @@
       text-shadow: 0 0 4px #000, 0 0 8px var(--cyan);
     }
 
-    /* Map Popups */
     .map-popup {
       position: absolute;
-      background: rgba(4, 12, 30, 0.9);
-      border: 1px solid var(--cyan);
-      padding: 8px 12px;
-      border-radius: 4px;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      background: rgba(2, 10, 24, 0.95);
+      border: 1px solid var(--arc-orange);
+      padding: 10px 14px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+      box-shadow: 0 0 20px var(--arc-orange-glow);
       pointer-events: none;
       transform: translate(-50%, -120%);
       opacity: 0;
@@ -342,10 +333,11 @@
     }
 
     .map-popup-title {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      color: var(--cyan);
+      color: var(--arc-orange);
       margin-bottom: 2px;
+      text-shadow: 0 0 8px var(--arc-orange);
     }
 
     .map-popup-desc {
@@ -353,7 +345,6 @@
       color: #fff;
     }
 
-    /* Traffic & Weather Panels */
     .weather-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -361,10 +352,10 @@
     }
 
     .weather-card {
-      background: rgba(0, 30, 60, 0.3);
-      border: 1px solid rgba(0, 240, 255, 0.15);
+      background: rgba(4, 25, 55, 0.5);
+      border: 1px solid rgba(0, 240, 255, 0.2);
       padding: 10px;
-      border-radius: 4px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
       text-align: center;
     }
 
@@ -378,7 +369,8 @@
       font-family: var(--font-mono);
       font-size: 1.2rem;
       font-weight: bold;
-      color: var(--cyan);
+      color: var(--arc-orange);
+      text-shadow: 0 0 8px var(--arc-orange-glow);
     }
 
     .weather-desc {
@@ -391,7 +383,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px;
-      border-bottom: 1px dashed rgba(0, 240, 255, 0.15);
+      border-bottom: 1px dashed rgba(255, 102, 0, 0.2);
     }
 
     .line-name {
@@ -399,20 +391,19 @@
       font-weight: bold;
     }
 
-    .status-ok { color: var(--neon-green); font-family: var(--font-mono); font-size: 0.8rem; }
-    .status-warn { color: var(--warning); font-family: var(--font-mono); font-size: 0.8rem; }
+    .status-ok { color: var(--neon-green); font-family: var(--font-mono); font-size: 0.8rem; text-shadow: 0 0 6px var(--neon-green); }
 
     .crosshair {
       position: absolute;
       width: 20px;
       height: 20px;
       pointer-events: none;
-      opacity: 0.3;
+      opacity: 0.4;
     }
-    .crosshair-tl { top: 10px; left: 10px; border-top: 1px solid var(--cyan); border-left: 1px solid var(--cyan); }
-    .crosshair-tr { top: 10px; right: 10px; border-top: 1px solid var(--cyan); border-right: 1px solid var(--cyan); }
-    .crosshair-bl { bottom: 10px; left: 10px; border-bottom: 1px solid var(--cyan); border-left: 1px solid var(--cyan); }
-    .crosshair-br { bottom: 10px; right: 10px; border-bottom: 1px solid var(--cyan); border-right: 1px solid var(--cyan); }
+    .crosshair-tl { top: 10px; left: 10px; border-top: 2px solid var(--arc-orange); border-left: 2px solid var(--arc-orange); }
+    .crosshair-tr { top: 10px; right: 10px; border-top: 2px solid var(--arc-orange); border-right: 2px solid var(--arc-orange); }
+    .crosshair-bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--arc-orange); border-left: 2px solid var(--arc-orange); }
+    .crosshair-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--arc-orange); border-right: 2px solid var(--arc-orange); }
   </style>
 </head>
 <body>
@@ -420,11 +411,10 @@
   <canvas id="bg-canvas"></canvas>
   <div class="scanlines"></div>
 
-  <!-- Header -->
   <header class="app-header">
     <div class="brand">
-      <div class="brand-logo"><div class="brand-logo-inner"></div></div>
-      <div class="brand-title">CYBER COMMAND // TACTICAL MAP</div>
+      <div class="arc-reactor-icon"><div class="arc-reactor-core"></div></div>
+      <div class="brand-title">J.A.R.V.I.S. // TACTICAL MAP</div>
     </div>
     <div class="header-info">
       <div class="status-badge">SYSTEM ONLINE</div>
@@ -432,14 +422,11 @@
     </div>
   </header>
 
-  <!-- Main Grid -->
   <div class="grid-layout">
-    
-    <!-- Left Panel: News -->
     <div class="cyber-panel">
       <div class="panel-header">
         <span>YAHOO! NEWS FEED</span>
-        <span style="font-size: 0.7rem; opacity: 0.7;">LIVE RSS</span>
+        <span style="font-size: 0.7rem; opacity: 0.8; color: var(--cyan);">LIVE RSS</span>
       </div>
       <div class="panel-content">
         <div id="news-container" class="news-list">
@@ -448,7 +435,6 @@
       </div>
     </div>
 
-    <!-- Center Panel: Map -->
     <div class="cyber-panel">
       <div class="crosshair crosshair-tl"></div>
       <div class="crosshair crosshair-tr"></div>
@@ -456,21 +442,12 @@
       <div class="crosshair crosshair-br"></div>
       <div class="panel-header">
         <span>HONSHU TACTICAL RADAR</span>
-        <span id="map-coords" style="font-family: var(--font-mono); font-size: 0.75rem;">35.6762° N, 139.6503° E</span>
+        <span id="map-coords" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan);">35.6762° N, 139.6503° E</span>
       </div>
       <div class="map-container">
         
-        <!-- Illustkun Style High-Precision Cyber Map SVG -->
         <svg id="japan-map-svg" viewBox="0 0 600 550">
-          <defs>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
-          <!-- Dynamic Grid Lines -->
-          <g stroke="rgba(0,240,255,0.08)" stroke-width="1">
+          <g stroke="rgba(255,102,0,0.12)" stroke-width="1">
             <line x1="0" y1="100" x2="600" y2="100" />
             <line x1="0" y1="200" x2="600" y2="200" />
             <line x1="0" y1="300" x2="600" y2="300" />
@@ -482,7 +459,11 @@
             <line x1="500" y1="0" x2="500" y2="550" />
           </g>
 
-          <!-- Landmasses (Illustkun Silhouette Layout) -->
+          <g stroke="rgba(0,240,255,0.15)" stroke-width="1" fill="none">
+            <circle cx="300" cy="275" r="120" stroke-dasharray="4,8" />
+            <circle cx="300" cy="275" r="220" stroke-dasharray="8,12" />
+          </g>
+
           <!-- HOKKAIDO -->
           <path class="land-mass" d="M 400 60 L 460 50 L 510 70 L 530 110 L 480 140 L 430 150 L 410 120 L 390 100 Z" />
           <!-- HONSHU -->
@@ -495,49 +476,42 @@
           <path class="land-mass" d="M 80 470 L 110 460 L 120 475 L 90 485 Z" />
 
           <!-- City Overlay Nodes -->
-          <!-- Sapporo -->
           <g class="city-node" id="node-sapporo" transform="translate(450, 100)" onclick="onCityClick('札幌')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
             <text x="12" y="4">札幌 [18°C]</text>
           </g>
 
-          <!-- Sendai -->
           <g class="city-node" id="node-sendai" transform="translate(420, 220)" onclick="onCityClick('仙台')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
             <text x="12" y="4">仙台 [21°C]</text>
           </g>
 
-          <!-- Tokyo -->
           <g class="city-node" id="node-tokyo" transform="translate(385, 285)" onclick="onCityClick('東京')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="5" style="fill: #ff0055;" />
-            <text x="14" y="4" style="fill: var(--cyan); font-weight: bold;">東京 [24°C]</text>
+            <circle class="pin" cx="0" cy="0" r="5" style="fill: var(--arc-orange);" />
+            <text x="14" y="4" style="fill: var(--arc-orange); font-weight: bold;">東京 [24°C]</text>
           </g>
 
-          <!-- Nagoya -->
           <g class="city-node" id="node-nagoya" transform="translate(330, 310)" onclick="onCityClick('名古屋')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
             <text x="12" y="4">名古屋 [25°C]</text>
           </g>
 
-          <!-- Osaka -->
           <g class="city-node" id="node-osaka" transform="translate(290, 325)" onclick="onCityClick('大阪')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
             <text x="-50" y="4">大阪 [26°C]</text>
           </g>
 
-          <!-- Fukuoka -->
           <g class="city-node" id="node-fukuoka" transform="translate(185, 365)" onclick="onCityClick('福岡')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
             <text x="-50" y="4">福岡 [23°C]</text>
           </g>
 
-          <!-- Naha -->
           <g class="city-node" id="node-naha" transform="translate(100, 470)" onclick="onCityClick('那覇')">
             <circle class="pulse-ring" cx="0" cy="0" r="10" />
             <circle class="pin" cx="0" cy="0" r="4" />
@@ -545,7 +519,6 @@
           </g>
         </svg>
 
-        <!-- Hover / Active Popup -->
         <div id="map-popup" class="map-popup">
           <div id="popup-title" class="map-popup-title">LOCATION INFO</div>
           <div id="popup-desc" class="map-popup-desc">WEATHER & NEWS CONNECTOR</div>
@@ -554,22 +527,17 @@
       </div>
     </div>
 
-    <!-- Right Panel: Weather & Traffic -->
     <div class="cyber-panel">
       <div class="panel-header">
         <span>ATMOSPHERE & TRANSIT</span>
-        <span style="font-size: 0.7rem; color: var(--neon-green);">MONITORING</span>
+        <span style="font-size: 0.7rem; color: var(--cyan);">MONITORING</span>
       </div>
       <div class="panel-content">
         
-        <!-- Weather Overview -->
-        <div style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--cyan); margin-bottom: 8px;">MAJOR CITIES WEATHER</div>
-        <div class="weather-grid" id="weather-grid">
-          <!-- JS generated -->
-        </div>
+        <div style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--arc-orange); margin-bottom: 8px;">MAJOR CITIES WEATHER</div>
+        <div class="weather-grid" id="weather-grid"></div>
 
-        <!-- Traffic Status -->
-        <div style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--cyan); margin-top: 20px; margin-bottom: 8px;">RAIL TRANSIT STATUS</div>
+        <div style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--arc-orange); margin-top: 20px; margin-bottom: 8px;">RAIL TRANSIT STATUS</div>
         <div id="traffic-list">
           <div class="traffic-item">
             <span class="line-name">山手線</span>
@@ -595,11 +563,9 @@
 
       </div>
     </div>
-
   </div>
 
   <script>
-    // --- Clock ---
     function updateClock() {
       const now = new Date();
       const timeStr = now.toTimeString().split(' ')[0] + ' JST';
@@ -608,7 +574,6 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // --- Weather Data ---
     const weatherData = [
       { city: '札幌', temp: '18°C', desc: '晴れ' },
       { city: '仙台', temp: '21°C', desc: '曇り' },
@@ -630,7 +595,6 @@
     }
     renderWeather();
 
-    // --- News Data with Geolocation Backup ---
     const fallbackNews = [
       { title: '首都圏交通網のスマート運行システムのテストが開始', loc: '東京', time: '10分前', link: 'https://news.yahoo.co.jp/' },
       { title: '関西経済圏におけるデジタルイノベーション技術展が開催', loc: '大阪', time: '25分前', link: 'https://news.yahoo.co.jp/' },
@@ -651,7 +615,6 @@
     };
 
     async function fetchNews() {
-      const container = document.getElementById('news-container');
       const rssUrl = 'https://news.yahoo.co.jp/rss/topics/top-picks.xml';
       const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
@@ -661,7 +624,6 @@
         
         if (data.status === 'ok' && data.items.length > 0) {
           renderNewsList(data.items.map(item => {
-            // Find matched location or assign random
             const cities = Object.keys(cityCoords);
             const matchedCity = cities.find(c => item.title.includes(c)) || cities[Math.floor(Math.random() * cities.length)];
             return {
@@ -675,14 +637,13 @@
           renderNewsList(fallbackNews);
         }
       } catch (e) {
-        console.log('RSS Fetch failed, loading local telemetry.', e);
         renderNewsList(fallbackNews);
       }
     }
 
     function renderNewsList(items) {
       const container = document.getElementById('news-container');
-      container.innerHTML = items.map((item, idx) => `
+      container.innerHTML = items.map((item) => `
         <div class="news-item" onmouseenter="highlightMapNode('${item.loc}', '${item.title}')" onmouseleave="hideMapPopup()" onclick="window.open('${item.link}', '_blank')">
           <div class="news-meta">
             <span class="news-location-tag">📍 ${item.loc}</span>
@@ -694,7 +655,6 @@
       `).join('');
     }
 
-    // --- Interactive Map Popup ---
     function highlightMapNode(cityName, text) {
       const coords = cityCoords[cityName];
       if (!coords) return;
@@ -707,7 +667,6 @@
       popupTitle.textContent = `TARGET: ${cityName}`;
       popupDesc.textContent = text;
 
-      // Position calculations relative to container
       const svg = document.getElementById('japan-map-svg');
       const rect = svg.getBoundingClientRect();
       const containerRect = mapContainer.getBoundingClientRect();
@@ -733,7 +692,6 @@
 
     fetchNews();
 
-    // --- Particle Canvas Background ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -752,8 +710,8 @@
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
         this.size = Math.random() * 1.5 + 0.5;
         this.alpha = Math.random() * 0.5 + 0.1;
       }
@@ -765,7 +723,7 @@
         }
       }
       draw() {
-        ctx.fillStyle = `rgba(0, 240, 255, ${this.alpha})`;
+        ctx.fillStyle = `rgba(255, 102, 0, ${this.alpha})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
