@@ -396,3 +396,78 @@ body {
 .crosshair-tr { top: 10px; right: 10px; border-top: 2px solid var(--arc-orange); border-right: 2px solid var(--arc-orange); }
 .crosshair-bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--arc-orange); border-left: 2px solid var(--arc-orange); }
 .crosshair-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--arc-orange); border-right: 2px solid var(--arc-orange); }
+
+
+/* Weather Advanced Layout */
+.weather-grid-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weather-card-detail {
+  background: rgba(4, 25, 55, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-left: 3px solid var(--cyan);
+  padding: 10px 12px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weather-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(0, 240, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+.weather-city-name {
+  font-family: var(--font-tech);
+  font-weight: bold;
+  color: var(--arc-orange);
+  font-size: 0.9rem;
+}
+
+.weather-rain-prob {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+
+.weather-ampm-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ampm-box {
+  background: rgba(2, 10, 24, 0.6);
+  padding: 6px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.ampm-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.ampm-val {
+  font-size: 0.8rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.weather-icon {
+  font-size: 1rem;
+}
