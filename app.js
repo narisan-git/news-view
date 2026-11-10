@@ -8,41 +8,112 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   updateClock();
 
-  // --- Weather Module ---
-  const weatherData = [
-    { city: '札幌', temp: '18°C', desc: '晴れ' },
-    { city: '仙台', temp: '21°C', desc: '曇り' },
-    { city: '東京', temp: '24°C', desc: '快晴' },
-    { city: '名古屋', temp: '25°C', desc: '晴れ' },
-    { city: '大阪', temp: '26°C', desc: '薄曇り' },
-    { city: '福岡', temp: '23°C', desc: '雨' },
+  // --- Coordinates ---
+  const cityCoords = {
+    '札幌': { x: 450, y: 100, code: '1b/1400' },
+    '仙台': { x: 420, y: 220, code: '2/3410' },
+    '東京': { x: 385, y: 285, code: '4/4410' },
+    '名古屋': { x: 330, y: 310, code: '5/5110' },
+    '大阪': { x: 290, y: 325, code: '6/6200' },
+    '福岡': { x: 185, y: 365, code: '9/8210' },
+    '那覇': { x: 100, y: 470, code: '10/9110' }
+  };
+
+  // --- Weather Module (Yahoo! Weather Scraper via Proxy) ---
+  const weatherCities = [
+    { name: '東京', id: '4410' },
+    { name: '大阪', id: '6200' },
+    { name: '名古屋', id: '5110' },
+    { name: '札幌', id: '1400' },
+    { name: '福岡', id: '8210' }
   ];
 
-  function renderWeather() {
+  // フォールバックデータ
+  const fallbackWeather = [
+    { city: '東京', am: '晴れ', pm: '快晴', pop: '10%', iconAm: '☀️', iconPm: '☀️' },
+    { city: '大阪', am: '曇り', pm: '晴れ', pop: '20%', iconAm: '☁️', iconPm: '☀️' },
+    { city: '名古屋', am: '晴れ', pm: '晴れ', pop: '0%', iconAm: '☀️', iconPm: '☀️' },
+    { city: '札幌', am: '曇り', pm: '雨', pop: '60%', iconAm: '☁️', iconPm: '☔' },
+    { city: '福岡', am: '小雨', pm: '曇り', pop: '40%', iconAm: '🌧️', iconPm: '☁️' }
+  ];
+
+  function getWeatherIcon(text) {
+    if (!text) return '☀️';
+    if (text.includes('雨')) return '☔';
+    if (text.includes('雪')) return '❄️';
+    if (text.includes('雷')) return '⚡';
+    if (text.includes('曇')) return '☁️';
+    return '☀️';
+  }
+
+  async function fetchYahooWeather() {
+    const grid = document.getElementById('weather-grid');
+    // Yahoo!天気のpinpoint天気（東京）URL
+    const targetUrl = 'https://weather.yahoo.co.jp/weather/jp/13/4410.html';
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
+    try {
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error('Weather fetch failed');
+      const htmlText = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+
+      // Yahoo!天気のピンポイント天気テーブル要素を取得
+      const todayForecast = doc.querySelector('.forecastCity');
+      
+      if (todayForecast) {
+        // DOM解析からAM/PM・降水確率を取得
+        const weatherTelop = doc.querySelector('.forecastCity .info .weather p')?.textContent.trim() || '晴れ';
+        const popElements = doc.querySelectorAll('.forecastCity .rain td');
+        
+        // 降水確率の最大値を抽出
+        let maxPop = '0%';
+        if (popElements.length > 0) {
+          const pops = Array.from(popElements).map(el => parseInt(el.textContent) || 0);
+          maxPop = `${Math.max(...pops)}%`;
+        }
+
+        const liveData = [
+          { city: '東京', am: weatherTelop.split('時々')[0] || '晴れ', pm: weatherTelop.split('のち')[1] || weatherTelop, pop: maxPop, iconAm: getWeatherIcon(weatherTelop), iconPm: getWeatherIcon(weatherTelop) },
+          ...fallbackWeather.slice(1)
+        ];
+        renderWeather(liveData);
+      } else {
+        renderWeather(fallbackWeather);
+      }
+    } catch (e) {
+      console.warn('Weather fetch fallback triggered', e);
+      renderWeather(fallbackWeather);
+    }
+  }
+
+  function renderWeather(data) {
     const grid = document.getElementById('weather-grid');
     if (!grid) return;
-    grid.innerHTML = weatherData.map(w => `
-      <div class="weather-card">
-        <div class="weather-city">${w.city}</div>
-        <div class="weather-temp">${w.temp}</div>
-        <div class="weather-desc">${w.desc}</div>
+    grid.innerHTML = data.map(w => `
+      <div class="weather-card-detail">
+        <div class="weather-header-row">
+          <span class="weather-city-name">${w.city}</span>
+          <span class="weather-rain-prob">降水確率: ${w.pop}</span>
+        </div>
+        <div class="weather-ampm-container">
+          <div class="ampm-box">
+            <div class="ampm-label">午前 (AM)</div>
+            <div class="ampm-val"><span class="weather-icon">${w.iconAm}</span> ${w.am}</div>
+          </div>
+          <div class="ampm-box">
+            <div class="ampm-label">午後 (PM)</div>
+            <div class="ampm-val"><span class="weather-icon">${w.iconPm}</span> ${w.pm}</div>
+          </div>
+        </div>
       </div>
     `).join('');
   }
-  renderWeather();
 
-  // --- News & Coordinates ---
-  const cityCoords = {
-    '札幌': { x: 450, y: 100 },
-    '仙台': { x: 420, y: 220 },
-    '東京': { x: 385, y: 285 },
-    '名古屋': { x: 330, y: 310 },
-    '大阪': { x: 290, y: 325 },
-    '福岡': { x: 185, y: 365 },
-    '那覇': { x: 100, y: 470 }
-  };
+  fetchYahooWeather();
 
-  // 通信失敗時のフォールバックデータ
+  // --- Yahoo! News Module ---
   const fallbackNews = [
     { title: '首都圏交通網のスマート運行システムのテストが開始', loc: '東京', time: '10分前', link: 'https://news.yahoo.co.jp/' },
     { title: '関西経済圏におけるデジタルイノベーション技術展が開催', loc: '大阪', time: '25分前', link: 'https://news.yahoo.co.jp/' },
@@ -52,11 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: '東北気象データのリアルタイム解析モデルの運用を開始', loc: '仙台', time: '2時間前', link: 'https://news.yahoo.co.jp/' }
   ];
 
-  // Yahoo!ニュース RSSを動的取得する関数
   async function fetchNews() {
-    const container = document.getElementById('news-container');
     const rssUrl = 'https://news.yahoo.co.jp/rss/topics/top-picks.xml';
-    // GitHub PagesのHTTPS環境に対応した安全なCORSプロキシ経由
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
 
     try {
@@ -71,11 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (items && items.length > 0) {
         const parsedItems = [];
         items.forEach((item, index) => {
-          if (index < 7) { // 上位7件を取得
+          if (index < 7) {
             const title = item.querySelector('title')?.textContent || 'タイトルなし';
             const link = item.querySelector('link')?.textContent || 'https://news.yahoo.co.jp/';
             
-            // ニュースのタイトルに含まれる地名を自動検知、なければランダムに割り当て
             const cities = Object.keys(cityCoords);
             const matchedCity = cities.find(c => title.includes(c)) || cities[Math.floor(Math.random() * cities.length)];
             
@@ -92,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNewsList(fallbackNews);
       }
     } catch (e) {
-      console.warn('Live RSS fetch failed. Switching to tactical telemetry fallback.', e);
       renderNewsList(fallbackNews);
     }
   }
@@ -112,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    // Event Delegation for High Performance
     container.onmouseover = (e) => {
       const item = e.target.closest('.news-item');
       if (item) highlightMapNode(item.dataset.loc, item.dataset.title);
@@ -178,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // ニュースの取得実行
   fetchNews();
 
   // --- Background Particle Canvas ---
