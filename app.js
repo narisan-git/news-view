@@ -9,15 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
   updateClock();
 
   // --- Coordinates ---
-  const cityCoords = {
-    '札幌': { x: 450, y: 100, code: '1b/1400' },
-    '仙台': { x: 420, y: 220, code: '2/3410' },
-    '東京': { x: 385, y: 285, code: '4/4410' },
-    '名古屋': { x: 330, y: 310, code: '5/5110' },
-    '大阪': { x: 290, y: 325, code: '6/6200' },
-    '福岡': { x: 185, y: 365, code: '9/8210' },
-    '那覇': { x: 100, y: 470, code: '10/9110' }
+
+const cityCoords = {
+    '札幌': { x: 440, y: 115 },
+    '仙台': { x: 432, y: 225 },
+    '東京': { x: 400, y: 290 },
+    '名古屋': { x: 345, y: 305 },
+    '大阪': { x: 305, y: 325 },
+    '福岡': { x: 185, y: 355 },
+    '那覇': { x: 100, y: 470 }
   };
+  
 
   // --- Weather Module (Yahoo! Weather Scraper via Proxy) ---
   const weatherCities = [
