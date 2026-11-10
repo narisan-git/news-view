@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderWeather() {
     const grid = document.getElementById('weather-grid');
+    if (!grid) return;
     grid.innerHTML = weatherData.map(w => `
       <div class="weather-card">
         <div class="weather-city">${w.city}</div>
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '那覇': { x: 100, y: 470 }
   };
 
+  // 通信失敗時のフォールバックデータ
   const fallbackNews = [
     { title: '首都圏交通網のスマート運行システムのテストが開始', loc: '東京', time: '10分前', link: 'https://news.yahoo.co.jp/' },
     { title: '関西経済圏におけるデジタルイノベーション技術展が開催', loc: '大阪', time: '25分前', link: 'https://news.yahoo.co.jp/' },
@@ -50,36 +52,55 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: '東北気象データのリアルタイム解析モデルの運用を開始', loc: '仙台', time: '2時間前', link: 'https://news.yahoo.co.jp/' }
   ];
 
+  // Yahoo!ニュース RSSを動的取得する関数
   async function fetchNews() {
+    const container = document.getElementById('news-container');
     const rssUrl = 'https://news.yahoo.co.jp/rss/topics/top-picks.xml';
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    // GitHub PagesのHTTPS環境に対応した安全なCORSプロキシ経由
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
 
     try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
       
-      if (data.status === 'ok' && data.items.length > 0) {
-        const parsedItems = data.items.map(item => {
-          const cities = Object.keys(cityCoords);
-          const matchedCity = cities.find(c => item.title.includes(c)) || cities[Math.floor(Math.random() * cities.length)];
-          return {
-            title: item.title,
-            loc: matchedCity,
-            time: '最新',
-            link: item.link
-          };
+      const xmlText = await response.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+      const items = xmlDoc.querySelectorAll('item');
+
+      if (items && items.length > 0) {
+        const parsedItems = [];
+        items.forEach((item, index) => {
+          if (index < 7) { // 上位7件を取得
+            const title = item.querySelector('title')?.textContent || 'タイトルなし';
+            const link = item.querySelector('link')?.textContent || 'https://news.yahoo.co.jp/';
+            
+            // ニュースのタイトルに含まれる地名を自動検知、なければランダムに割り当て
+            const cities = Object.keys(cityCoords);
+            const matchedCity = cities.find(c => title.includes(c)) || cities[Math.floor(Math.random() * cities.length)];
+            
+            parsedItems.push({
+              title: title,
+              loc: matchedCity,
+              time: 'LIVE',
+              link: link
+            });
+          }
         });
         renderNewsList(parsedItems);
       } else {
         renderNewsList(fallbackNews);
       }
     } catch (e) {
+      console.warn('Live RSS fetch failed. Switching to tactical telemetry fallback.', e);
       renderNewsList(fallbackNews);
     }
   }
 
   function renderNewsList(items) {
     const container = document.getElementById('news-container');
+    if (!container) return;
+
     container.innerHTML = items.map(item => `
       <div class="news-item" data-loc="${item.loc}" data-title="${escapeHtml(item.title)}" data-link="${item.link}">
         <div class="news-meta">
@@ -91,26 +112,22 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    // Event Delegation for News Items (High Performance)
-    container.addEventListener('mouseover', (e) => {
+    // Event Delegation for High Performance
+    container.onmouseover = (e) => {
       const item = e.target.closest('.news-item');
-      if (item) {
-        highlightMapNode(item.dataset.loc, item.dataset.title);
-      }
-    });
+      if (item) highlightMapNode(item.dataset.loc, item.dataset.title);
+    };
 
-    container.addEventListener('mouseout', (e) => {
-      if (e.target.closest('.news-item')) {
-        hideMapPopup();
-      }
-    });
+    container.onmouseout = (e) => {
+      if (e.target.closest('.news-item')) hideMapPopup();
+    };
 
-    container.addEventListener('click', (e) => {
+    container.onclick = (e) => {
       const item = e.target.closest('.news-item');
       if (item && !e.target.classList.contains('news-link')) {
         window.open(item.dataset.link, '_blank');
       }
-    });
+    };
   }
 
   function escapeHtml(str) {
@@ -128,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function highlightMapNode(cityName, text) {
     const coords = cityCoords[cityName];
-    if (!coords) return;
+    if (!coords || !popup) return;
 
     popupTitle.textContent = `TARGET: ${cityName}`;
     popupDesc.textContent = text;
@@ -148,22 +165,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function hideMapPopup() {
-    popup.classList.remove('visible');
+    if (popup) popup.classList.remove('visible');
   }
 
-  // Event Delegation for City Nodes
-  svg.addEventListener('click', (e) => {
-    const node = e.target.closest('.city-node');
-    if (node) {
-      const cityName = node.dataset.city;
-      highlightMapNode(cityName, `${cityName}エリアの最新情報を同期完了`);
-    }
-  });
+  if (svg) {
+    svg.onclick = (e) => {
+      const node = e.target.closest('.city-node');
+      if (node) {
+        const cityName = node.dataset.city;
+        highlightMapNode(cityName, `${cityName}エリアの最新情報を同期完了`);
+      }
+    };
+  }
 
+  // ニュースの取得実行
   fetchNews();
 
-  // --- Optimized Canvas Background (Offscreen & FPS Controlled) ---
+  // --- Background Particle Canvas ---
   const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d', { alpha: false });
   let particles = [];
 
