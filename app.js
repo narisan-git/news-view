@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     '那覇':   { lon: 127.68, lat: 26.21, t: '29°C', label: 'u', inset: true }
   };
   const cityPos = {};                       // 投影後のSVG座標 { 都市名: {x, y} }
-  const MAP_DATA_URL = 'japan.geojson';     // リポジトリ直下に配置
+  // dataofjapan/land から直接読み込む(自分のリポジトリに置く場合は 'japan.topojson' などの相対パスに変更)
+  const MAP_DATA_URL = 'https://raw.githubusercontent.com/dataofjapan/land/master/japan.topojson';
   const LABEL = { r: [12, 4, 'start'], l: [-12, 4, 'end'], u: [0, -12, 'middle'] };
 
   async function drawMap() {
@@ -28,7 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(MAP_DATA_URL);
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const geo = await res.json();
+      const raw = await res.json();
+      // TopoJSON(japan.topojson)ならGeoJSONへ変換。GeoJSONならそのまま使う
+      const geo = raw.type === 'Topology'
+        ? topojson.feature(raw, raw.objects[Object.keys(raw.objects)[0]]) : raw;
 
       // 巻き方向が逆のポリゴン(地球全体が塗られる現象)を補正
       const fixWind = poly =>
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('Map load failed', e);
       svgSel.select('#map-land').append('text')
         .attr('x', 300).attr('y', 275).attr('text-anchor', 'middle')
-        .attr('fill', '#ff6600').text('MAP DATA NOT FOUND: ' + MAP_DATA_URL);
+        .attr('fill', '#ff6600').text('MAP DATA LOAD FAILED (see console)');
     }
   }
   drawMap();
