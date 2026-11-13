@@ -486,3 +486,10 @@ body {
   fill: var(--cyan);
   opacity: 0.8;
 }
+
+.map-credit {
+  font-family: var(--font-jp);
+  font-size: 8px;
+  fill: var(--text-dim);
+  opacity: 0.6;
+}
