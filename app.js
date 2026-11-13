@@ -8,17 +8,87 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   updateClock();
 
-  // --- Coordinates ---
-
-const cityCoords = {
-    '札幌': { x: 470, y: 95 },
-    '仙台': { x: 425, y: 210 },
-    '東京': { x: 390, y: 275 },
-    '名古屋': { x: 335, y: 290 },
-    '大阪': { x: 295, y: 305 },
-    '福岡': { x: 185, y: 345 },
-    '那覇': { x: 95, y: 460 }
+  // --- Map (GeoJSON + D3) ---
+  // 都市は緯度経度で定義。ピン位置は地図と同じ投影から自動計算される
+  const cityCoords = {
+    '札幌':   { lon: 141.35, lat: 43.06, t: '18°C', label: 'r' },
+    '仙台':   { lon: 140.87, lat: 38.27, t: '21°C', label: 'r' },
+    '東京':   { lon: 139.69, lat: 35.69, t: '24°C', label: 'r', main: true },
+    '名古屋': { lon: 136.91, lat: 35.18, t: '25°C', label: 'u' },
+    '大阪':   { lon: 135.50, lat: 34.69, t: '26°C', label: 'l' },
+    '福岡':   { lon: 130.40, lat: 33.59, t: '23°C', label: 'u' },
+    '那覇':   { lon: 127.68, lat: 26.21, t: '29°C', label: 'u', inset: true }
   };
+  const cityPos = {};                       // 投影後のSVG座標 { 都市名: {x, y} }
+  const MAP_DATA_URL = 'japan.geojson';     // リポジトリ直下に配置
+  const LABEL = { r: [12, 4, 'start'], l: [-12, 4, 'end'], u: [0, -12, 'middle'] };
+
+  async function drawMap() {
+    const svgSel = d3.select('#japan-map-svg');
+    try {
+      const res = await fetch(MAP_DATA_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const geo = await res.json();
+
+      // 巻き方向が逆のポリゴン(地球全体が塗られる現象)を補正
+      const fixWind = poly =>
+        d3.geoArea({ type: 'Polygon', coordinates: poly }) > 2 * Math.PI
+          ? poly.map(r => r.slice().reverse()) : poly;
+
+      // 本土 / 沖縄(インセット)に分け、小笠原など遠隔島は除外
+      const main = [], oki = [];
+      (geo.features || []).forEach(f => {
+        const g = f.geometry;
+        if (!g) return;
+        const polys = g.type === 'Polygon' ? [g.coordinates]
+                    : g.type === 'MultiPolygon' ? g.coordinates : [];
+        const m = [], o = [];
+        polys.map(fixWind).forEach(p => {
+          const [lon, lat] = d3.geoCentroid({ type: 'Polygon', coordinates: p });
+          if (lat < 28 && lon < 135) o.push(p);
+          else if (!(lat < 30 && lon > 135)) m.push(p);
+        });
+        const mk = c => ({ type: 'Feature', geometry: { type: 'MultiPolygon', coordinates: c } });
+        if (m.length) main.push(mk(m));
+        if (o.length) oki.push(mk(o));
+      });
+
+      const pMain = d3.geoMercator().fitExtent([[20, 20], [580, 530]], { type: 'FeatureCollection', features: main });
+      const pOki = oki.length
+        ? d3.geoMercator().fitExtent([[448, 420], [568, 504]], { type: 'FeatureCollection', features: oki }) : null;
+
+      svgSel.select('#map-land').selectAll('path').data(main).join('path')
+        .attr('class', 'land-mass').attr('d', d3.geoPath(pMain));
+      if (pOki) {
+        svgSel.select('#map-inset').selectAll('path').data(oki).join('path')
+          .attr('class', 'land-mass').attr('d', d3.geoPath(pOki));
+      }
+
+      const gc = svgSel.select('#map-cities');
+      Object.entries(cityCoords).forEach(([name, c]) => {
+        const proj = c.inset ? pOki : pMain;
+        if (!proj) return;
+        const [x, y] = proj([c.lon, c.lat]);
+        cityPos[name] = { x, y };
+        const [dx, dy, anchor] = LABEL[c.label];
+        const g = gc.append('g').attr('class', 'city-node').attr('data-city', name)
+          .attr('transform', `translate(${x},${y})`);
+        g.append('circle').attr('class', 'pulse-ring').attr('r', 10);
+        g.append('circle').attr('class', 'pin').attr('r', c.main ? 5 : 4)
+          .style('fill', c.main ? 'var(--arc-orange)' : null);
+        g.append('text').attr('x', dx).attr('y', dy).attr('text-anchor', anchor)
+          .style('fill', c.main ? 'var(--arc-orange)' : null)
+          .style('font-weight', c.main ? 'bold' : null)
+          .text(`${name} [${c.t}]`);
+      });
+    } catch (e) {
+      console.warn('Map load failed', e);
+      svgSel.select('#map-land').append('text')
+        .attr('x', 300).attr('y', 275).attr('text-anchor', 'middle')
+        .attr('fill', '#ff6600').text('MAP DATA NOT FOUND: ' + MAP_DATA_URL);
+    }
+  }
+  drawMap();
   
 
   // --- Weather Module (Yahoo! Weather Scraper via Proxy) ---
@@ -211,23 +281,20 @@ const cityCoords = {
   const svg = document.getElementById('japan-map-svg');
 
   function highlightMapNode(cityName, text) {
-    const coords = cityCoords[cityName];
-    if (!coords || !popup) return;
+    const p = cityPos[cityName];
+    if (!p || !popup) return;
 
     popupTitle.textContent = `TARGET: ${cityName}`;
     popupDesc.textContent = text;
 
-    const rect = svg.getBoundingClientRect();
+    // viewBox座標 → 画面座標(縦横比の余白も考慮)
+    const pt = svg.createSVGPoint();
+    pt.x = p.x; pt.y = p.y;
+    const s = pt.matrixTransform(svg.getScreenCTM());
     const containerRect = mapContainer.getBoundingClientRect();
 
-    const scaleX = rect.width / 600;
-    const scaleY = rect.height / 550;
-
-    const posX = (coords.x * scaleX) + (rect.left - containerRect.left);
-    const posY = (coords.y * scaleY) + (rect.top - containerRect.top);
-
-    popup.style.left = `${posX}px`;
-    popup.style.top = `${posY}px`;
+    popup.style.left = `${s.x - containerRect.left}px`;
+    popup.style.top = `${s.y - containerRect.top}px`;
     popup.classList.add('visible');
   }
 
