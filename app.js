@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Map (GeoJSON + D3) ---
   // 都市は緯度経度で定義。ピン位置は地図と同じ投影から自動計算される
   const cityCoords = {
-    '札幌':   { lon: 141.35, lat: 43.06, t: '18°C', label: 'r' },
-    '仙台':   { lon: 140.87, lat: 38.27, t: '21°C', label: 'r' },
-    '東京':   { lon: 139.69, lat: 35.69, t: '24°C', label: 'r', main: true },
-    '名古屋': { lon: 136.91, lat: 35.18, t: '25°C', label: 'u' },
-    '大阪':   { lon: 135.50, lat: 34.69, t: '26°C', label: 'l' },
-    '福岡':   { lon: 130.40, lat: 33.59, t: '23°C', label: 'u' },
-    '那覇':   { lon: 127.68, lat: 26.21, t: '29°C', label: 'u', inset: true }
+    '札幌':   { lon: 141.3544, lat: 43.0621, t: '18°C', label: 'r' },
+    '仙台':   { lon: 140.8694, lat: 38.2682, t: '21°C', label: 'r' },
+    '東京':   { lon: 139.6917, lat: 35.6895, t: '24°C', label: 'r', main: true },
+    '名古屋': { lon: 136.9066, lat: 35.1815, t: '25°C', label: 'u' },
+    '大阪':   { lon: 135.5023, lat: 34.6937, t: '26°C', label: 'l' },
+    '福岡':   { lon: 130.4017, lat: 33.5904, t: '23°C', label: 'u' },
+    '那覇':   { lon: 127.6809, lat: 26.2124, t: '29°C', label: 'u', inset: true }
   };
   const cityPos = {};                       // 投影後のSVG座標 { 都市名: {x, y} }
   // dataofjapan/land から直接読み込む(自分のリポジトリに置く場合は 'japan.topojson' などの相対パスに変更)
@@ -283,6 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupTitle = document.getElementById('popup-title');
   const popupDesc = document.getElementById('popup-desc');
   const svg = document.getElementById('japan-map-svg');
+  const coordsEl = document.getElementById('map-coords');
+  const COORDS_IDLE = 'NO TARGET';
+  const fmtCoords = c => `${c.lat.toFixed(4)}° N, ${c.lon.toFixed(4)}° E`;
 
   function highlightMapNode(cityName, text) {
     const p = cityPos[cityName];
@@ -300,10 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
     popup.style.left = `${s.x - containerRect.left}px`;
     popup.style.top = `${s.y - containerRect.top}px`;
     popup.classList.add('visible');
+
+    // アクティブな都市の緯度経度を表示
+    if (coordsEl) coordsEl.textContent = fmtCoords(cityCoords[cityName]);
   }
 
   function hideMapPopup() {
     if (popup) popup.classList.remove('visible');
+    if (coordsEl) coordsEl.textContent = COORDS_IDLE;
   }
 
   if (svg) {
