@@ -49,8 +49,7 @@
       </div>
       <div class="map-container">
         
-        <!-- イラスト8風 スタンダード・スマートシルエット日本地図 SVG -->
-        <!-- 精密ブラッシュアップ版 日本地図 SVG -->
+        <!-- 日本地図 SVG (GeoJSON + D3で app.js が描画) -->
         <svg id="japan-map-svg" viewBox="0 0 600 550">
           <g stroke="rgba(255,102,0,0.12)" stroke-width="1">
             <line x1="0" y1="100" x2="600" y2="100" />
@@ -69,59 +68,12 @@
             <circle cx="300" cy="275" r="220" stroke-dasharray="8,12" />
           </g>
 
-          <!-- 北海道 -->
-          <path class="land-mass" d="M 430 85 L 455 70 L 490 65 L 520 75 L 535 100 L 515 125 L 480 135 L 445 140 L 425 120 Z" />
-          <!-- 本州 -->
-          <path class="land-mass" d="M 435 150 L 455 180 L 450 220 L 425 260 L 395 290 L 360 315 L 325 310 L 315 290 L 320 270 L 305 275 L 290 295 L 265 315 L 240 320 L 225 310 L 245 295 L 275 280 L 305 260 L 335 230 L 375 195 L 405 165 Z" />
-          <!-- 四国 -->
-          <path class="land-mass" d="M 235 340 L 275 335 L 285 355 L 270 370 L 240 370 L 225 355 Z" />
-          <!-- 九州 -->
-          <path class="land-mass" d="M 175 335 L 205 330 L 215 360 L 205 390 L 190 420 L 170 410 L 160 380 L 165 350 Z" />
-          <!-- 沖縄 -->
-          <path class="land-mass" d="M 85 455 L 110 445 L 120 460 L 95 470 Z" />
-
-          <!-- 都市オーバーレイ・ピン -->
-          <g class="city-node" id="node-sapporo" data-city="札幌" transform="translate(470, 95)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="12" y="4">札幌 [18°C]</text>
+          <g id="map-land"></g>
+          <g id="map-inset">
+            <rect class="inset-frame" x="438" y="400" width="140" height="112" />
+            <text class="inset-label" x="446" y="413">OKINAWA</text>
           </g>
-
-          <g class="city-node" id="node-sendai" data-city="仙台" transform="translate(425, 210)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="12" y="4">仙台 [21°C]</text>
-          </g>
-
-          <g class="city-node" id="node-tokyo" data-city="東京" transform="translate(390, 275)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="5" style="fill: var(--arc-orange);" />
-            <text x="14" y="4" style="fill: var(--arc-orange); font-weight: bold;">東京 [24°C]</text>
-          </g>
-
-          <g class="city-node" id="node-nagoya" data-city="名古屋" transform="translate(335, 290)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="12" y="4">名古屋 [25°C]</text>
-          </g>
-
-          <g class="city-node" id="node-osaka" data-city="大阪" transform="translate(295, 305)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="-50" y="4">大阪 [26°C]</text>
-          </g>
-
-          <g class="city-node" id="node-fukuoka" data-city="福岡" transform="translate(185, 345)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="-50" y="4">福岡 [23°C]</text>
-          </g>
-
-          <g class="city-node" id="node-naha" data-city="那覇" transform="translate(95, 460)">
-            <circle class="pulse-ring" cx="0" cy="0" r="10" />
-            <circle class="pin" cx="0" cy="0" r="4" />
-            <text x="12" y="4">那覇 [29°C]</text>
-          </g>
+          <g id="map-cities"></g>
         </svg>
 
         <div id="map-popup" class="map-popup">
@@ -175,6 +127,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
