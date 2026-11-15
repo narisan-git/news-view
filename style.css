@@ -496,3 +496,25 @@ body {
 
 .status-delay { color: var(--warning); font-family: var(--font-mono); font-size: 0.8rem; text-shadow: 0 0 6px var(--warning); }
 .status-unknown { color: var(--text-dim); font-family: var(--font-mono); font-size: 0.8rem; }
+
+/* Shinkansen routes */
+#map-rail { pointer-events: none; }
+.rail-line {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+.rail-line.delayed {
+  stroke-dasharray: 5 4;
+  animation: railBlink 1s infinite;
+}
+@keyframes railBlink { 50% { opacity: 0.25; } }
+.rail-stn { opacity: 0.9; }
+.rail-legend-line { stroke-width: 2; stroke-linecap: round; }
+.rail-legend {
+  font-family: var(--font-jp);
+  font-size: 9px;
+  fill: var(--text-main);
+}
