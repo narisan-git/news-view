@@ -493,3 +493,6 @@ body {
   fill: var(--text-dim);
   opacity: 0.6;
 }
+
+.status-delay { color: var(--warning); font-family: var(--font-mono); font-size: 0.8rem; text-shadow: 0 0 6px var(--warning); }
+.status-unknown { color: var(--text-dim); font-family: var(--font-mono); font-size: 0.8rem; }
