@@ -189,6 +189,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fetchYahooWeather();
 
+  // --- Rail Transit Module (新幹線 運行情報) ---
+  // 鉄道遅延情報のJSON: 遅延・運転見合わせ中の路線だけが配列で返る(該当なし=遅延情報なし)
+  const TRAIN_API = 'https://tetsudo.rti-giken.jp/free/delay.json';
+  const TRAIN_REFRESH_MS = 5 * 60 * 1000;
+  const shinkansenLines = [
+    { name: '東北新幹線' },
+    { name: '東海道新幹線' },
+    { name: '山陽新幹線' },
+    { name: '九州新幹線', exclude: '西九州' }   // 西九州新幹線を誤判定しない
+  ];
+
+  async function fetchDelayJson() {
+    // 直接取得 → 失敗時はプロキシ経由
+    const urls = [TRAIN_API, `https://api.allorigins.win/raw?url=${encodeURIComponent(TRAIN_API)}`];
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      } catch (e) { /* 次の経路を試す */ }
+    }
+    return null;
+  }
+
+  const fmtTime = d => d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' });
+
+  async function updateTraffic() {
+    const list = document.getElementById('traffic-list');
+    const stamp = document.getElementById('traffic-updated');
+    if (!list) return;
+    const delays = await fetchDelayJson();
+
+    list.innerHTML = shinkansenLines.map(line => {
+      let cls = 'status-ok', text = '遅延情報なし';
+      if (!delays) {
+        cls = 'status-unknown'; text = '取得不可';
+      } else {
+        const hit = delays.find(d => typeof d.name === 'string' && d.name.includes(line.name)
+          && !(line.exclude && d.name.includes(line.exclude)));
+        if (hit) {
+          cls = 'status-delay';
+          text = '遅延・見合わせ' + (hit.lastupdate_gmt ? ` (${fmtTime(new Date(hit.lastupdate_gmt * 1000))})` : '');
+        }
+      }
+      return `<div class="traffic-item"><span class="line-name">${line.name}</span><span class="${cls}">${text}</span></div>`;
+    }).join('');
+
+    if (stamp) stamp.textContent = delays ? `UPDATED ${fmtTime(new Date())}` : 'OFFLINE';
+  }
+
+  updateTraffic();
+  setInterval(updateTraffic, TRAIN_REFRESH_MS);
+
   // --- Yahoo! News Module ---
   const fallbackNews = [
     { title: '首都圏交通網のスマート運行システムのテストが開始', loc: '東京', time: '10分前', link: 'https://news.yahoo.co.jp/' },
