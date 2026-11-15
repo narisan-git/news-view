@@ -24,6 +24,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAP_DATA_URL = 'https://raw.githubusercontent.com/dataofjapan/land/master/japan.topojson';
   const LABEL = { r: [12, 4, 'start'], l: [-12, 4, 'end'], u: [0, -12, 'middle'] };
 
+  // 新幹線の路線(主要駅の [経度, 緯度] を結ぶ)。駅を足すと形状が細かくなる
+  const RAIL_LINES = [
+    { name: '東北新幹線', color: '#00ffaa', pts: [   // 東京 上野 大宮 小山 宇都宮 那須塩原 新白河 郡山 福島 白石蔵王 仙台 古川 一ノ関 水沢江刺 北上 新花巻 盛岡 いわて沼宮内 二戸 八戸 七戸十和田 新青森
+      [139.7671, 35.6812], [139.7774, 35.7141], [139.6230, 35.9063], [139.8057, 36.3126], [139.8986, 36.5593],
+      [140.0160, 36.9627], [140.1400, 37.1200], [140.3877, 37.3977], [140.4590, 37.7543], [140.6200, 38.0050],
+      [140.8825, 38.2601], [140.9500, 38.5700], [141.1375, 38.9381], [141.1700, 39.1490], [141.1190, 39.2880],
+      [141.1130, 39.4340], [141.1363, 39.7016], [141.2500, 39.9530], [141.3000, 40.2700], [141.4175, 40.5125],
+      [141.1900, 40.7000], [140.6933, 40.8279]] },
+    { name: '東海道新幹線', color: '#4d9dff', pts: [   // 東京 品川 新横浜 小田原 熱海 三島 新富士 静岡 掛川 浜松 豊橋 三河安城 名古屋 岐阜羽島 米原 京都 新大阪
+      [139.7671, 35.6812], [139.7387, 35.6285], [139.6174, 35.5071], [139.1555, 35.2563], [139.0778, 35.1039],
+      [138.9109, 35.1267], [138.6638, 35.1424], [138.3889, 34.9719], [138.0140, 34.7694], [137.7347, 34.7036],
+      [137.3817, 34.7627], [137.0600, 34.9697], [136.8816, 35.1709], [136.7000, 35.3156], [136.2897, 35.3141],
+      [135.7585, 34.9858], [135.5006, 34.7336]] },
+    { name: '山陽新幹線', color: '#ff4dd2', pts: [   // 新大阪 新神戸 西明石 姫路 相生 岡山 福山 新尾道 三原 東広島 広島 新岩国 徳山 新山口 厚狭 新下関 小倉 博多
+      [135.5006, 34.7336], [135.1953, 34.7088], [134.9648, 34.6666], [134.6905, 34.8269], [134.4660, 34.8062],
+      [133.9179, 34.6666], [133.3620, 34.4893], [133.2000, 34.4400], [133.0800, 34.4000], [132.7400, 34.4300],
+      [132.4755, 34.3975], [132.1900, 34.1700], [131.8061, 34.0508], [131.4000, 34.0700], [131.1800, 34.0300],
+      [130.9300, 34.0100], [130.8837, 33.8861], [130.4207, 33.5897]] },
+    { name: '九州新幹線', color: '#ffd400', pts: [   // 博多 新鳥栖 久留米 筑後船小屋 新大牟田 新玉名 熊本 新八代 新水俣 出水 川内 鹿児島中央
+      [130.4207, 33.5897], [130.5105, 33.3722], [130.5036, 33.3166], [130.4970, 33.1930], [130.4617, 33.0443],
+      [130.5700, 32.9500], [130.6888, 32.7897], [130.6175, 32.4968], [130.4100, 32.2000], [130.3500, 32.0900],
+      [130.2000, 31.8300], [130.5420, 31.5840]] }
+  ];
+  const lineDelayed = {};                   // { 路線名: 遅延中か } 交通情報の取得結果が入る
+  const applyRailStatus = () => document.querySelectorAll('.rail-line').forEach(
+    el => el.classList.toggle('delayed', !!lineDelayed[el.dataset.line]));
+
   async function drawMap() {
     const svgSel = d3.select('#japan-map-svg');
     try {
@@ -68,6 +95,22 @@ document.addEventListener('DOMContentLoaded', () => {
           .attr('class', 'land-mass').attr('d', d3.geoPath(pOki));
       }
 
+      // 新幹線の路線・駅・凡例
+      const gr = svgSel.select('#map-rail');
+      RAIL_LINES.forEach((l, i) => {
+        gr.append('path').datum({ type: 'LineString', coordinates: l.pts })
+          .attr('class', 'rail-line').attr('data-line', l.name).attr('stroke', l.color)
+          .attr('d', d3.geoPath(pMain));
+        l.pts.forEach(p => {
+          const [sx, sy] = pMain(p);
+          gr.append('circle').attr('class', 'rail-stn').attr('cx', sx).attr('cy', sy).attr('r', 1.4).attr('fill', l.color);
+        });
+        const ly = 32 + i * 14;
+        gr.append('line').attr('class', 'rail-legend-line').attr('stroke', l.color)
+          .attr('x1', 14).attr('x2', 32).attr('y1', ly).attr('y2', ly);
+        gr.append('text').attr('class', 'rail-legend').attr('x', 38).attr('y', ly + 3).text(l.name);
+      });
+
       const gc = svgSel.select('#map-cities');
       Object.entries(cityCoords).forEach(([name, c]) => {
         const proj = c.inset ? pOki : pMain;
@@ -85,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .style('font-weight', c.main ? 'bold' : null)
           .text(`${name} [${c.t}]`);
       });
+      applyRailStatus();
     } catch (e) {
       console.warn('Map load failed', e);
       svgSel.select('#map-land').append('text')
@@ -234,8 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
           text = '遅延・見合わせ' + (hit.lastupdate_gmt ? ` (${fmtTime(new Date(hit.lastupdate_gmt * 1000))})` : '');
         }
       }
+      lineDelayed[line.name] = (cls === 'status-delay');
       return `<div class="traffic-item"><span class="line-name">${line.name}</span><span class="${cls}">${text}</span></div>`;
     }).join('');
+    applyRailStatus();
 
     if (stamp) stamp.textContent = delays ? `UPDATED ${fmtTime(new Date())}` : 'OFFLINE';
   }
